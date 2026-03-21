@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Reading Check</title>
+</head>
+<body>
+  <div id="results"></div>
+  <script src="js/data-grade1.js"></script>
+  <script src="js/data-grade2.js"></script>
+  <script src="js/data-grade3.js"></script>
+  <script src="js/data-grade4.js"></script>
+  <script src="js/data-grade5.js"></script>
+  <script src="js/data-grade6.js"></script>
+  <script>
+    function katakanaToHiragana(str) {
+      return str.replace(/[\u30A1-\u30F6]/g, function(match) {
+        return String.fromCharCode(match.charCodeAt(0) - 0x60);
+      });
+    }
+
+    const allData = [
+      KANJI_GRADE1_DATA,
+      KANJI_GRADE2_DATA,
+      KANJI_GRADE3_DATA,
+      KANJI_GRADE4_DATA,
+      KANJI_GRADE5_DATA,
+      KANJI_GRADE6_DATA
+    ];
+
+    let resultsHTML = "";
+
+    allData.forEach((data, index) => {
+      let errors = [];
+      for (const [char, info] of Object.entries(data)) {
+        if (!info.examples) continue;
+        
+        for (const ex of info.examples) {
+          const reading = ex.reading;
+          const text = ex.text;
+          
+          const hiraganaReading = katakanaToHiragana(reading.replace(/\./g, ''));
+          const cleanReading = hiraganaReading.replace(/[^ぁ-ん]/g, '');
+
+          const regex = /([^\s（）]*?[^\s（）]*?)（([^）]+)）/g;
+          let match;
+          let found = false;
+          let valid = true;
+          let targetFurigana = "";
+          
+          while ((match = regex.exec(text)) !== null) {
+            const word = match[1];
+            const furigana = match[2];
+            
+            if (word.includes(char)) {
+              found = true;
+              targetFurigana = furigana;
+              if (!furigana.includes(cleanReading)) {
+                valid = false;
+              }
+            }
+          }
+          
+          if (found && !valid) {
+            errors.push(`[${char}] reading: "${reading}" (-> ${cleanReading}), text: "${text}", furigana: "${targetFurigana}" ---> MISMATCH!`);
+          } else if (!found) {
+            if (!text.includes('（')) {
+               errors.push(`[${char}] text: "${text}" has NO FURIGANA!`);
+            }
+          }
+        }
+      }
+      resultsHTML += `<h3>Grade ${index + 1}</h3>`;
+      if (errors.length > 0) {
+        resultsHTML += `<ul>` + errors.map(e => `<li>${e}</li>`).join('') + `</ul>`;
+      } else {
+        resultsHTML += `<p>No errors</p>`;
+      }
+    });
+
+    document.getElementById('results').innerHTML = resultsHTML;
+  </script>
+</body>
+</html>
