@@ -57,6 +57,10 @@ const App = {
         document.getElementById('history-screen').classList.add('active');
         History.render();
         break;
+      case 'review-list':
+        document.getElementById('review-list-screen').classList.add('active');
+        ReviewList.render(this.currentGrade);
+        break;
     }
 
     this.updateBackButton();
@@ -138,6 +142,10 @@ const App = {
               <div class="grade-card-progress-bar" style="width: ${writePercent}%; background: var(--accent-green, #51cf66);"></div>
             </div>
           </div>
+          <div style="display:flex;gap:4px;margin-top:2px;font-size:0.7rem;color:var(--text-secondary);">
+            <span style="flex:1;text-align:center;">${readPercent === 100 ? '👑' : '📖'} ${readMastered}/${kanjiList.length} (${readPercent}%)</span>
+            <span style="flex:1;text-align:center;">${writePercent === 100 ? '👑' : '✏️'} ${writeMastered}/${kanjiList.length} (${writePercent}%)</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -163,6 +171,12 @@ const App = {
     if (kanji) {
       this.navigate('detail', char);
     }
+  },
+
+  // ======================== 要復習リスト ========================
+
+  showReviewList() {
+    this.navigate('review-list');
   },
 
   // ======================== テスト結果 ========================
@@ -289,47 +303,54 @@ const App = {
   },
 
   startReviewTest() {
-    // 現在の学年の要復習漢字を取得
-    const errors = Storage.getErrors();
-    let currentGradeErrors = [];
-    errors.forEach(err => {
-      const k = getKanjiByChar(err.char);
-      if (k && k.grade === this.currentGrade) {
-        currentGradeErrors.push(err);
+    // 現在の学年で実際に「要復習」ステータスの漢字を取得
+    const kanjiList = getKanjiByGrade(this.currentGrade);
+    let reviewKanji = [];
+    
+    kanjiList.forEach(k => {
+      const rs = Storage.getKanjiStatus(k.char, 'reading');
+      if (rs.color === 'red' && rs.reviewStreaks) {
+        // 要復習の読みごとに問題を作成
+        Object.entries(rs.reviewStreaks).forEach(([reading, info]) => {
+          if (info.hasError && info.streak < rs.masteryStreak) {
+            // この読みに対応する例文を探す
+            let sentenceObj = null;
+            if (k.exampleSentences) {
+              sentenceObj = k.exampleSentences.find(s => s.targetReading === reading);
+            }
+            // 読みのタイプを特定
+            const readingObj = k.readings.find(r => r.reading === reading);
+            const readingType = readingObj ? readingObj.type : (sentenceObj ? sentenceObj.readingType : 'onyomi');
+            
+            reviewKanji.push({
+              char: k.char,
+              reading: reading,
+              readingType: readingType,
+              streak: info.streak,
+              sentenceObj: sentenceObj
+            });
+          }
+        });
       }
     });
 
-    if (currentGradeErrors.length === 0) {
-      alert(`${this.currentGrade}年生で間違えた漢字はまだありません！\n素晴らしいです！`);
+    if (reviewKanji.length === 0) {
+      alert(`${this.currentGrade}年生で要復習の漢字はありません！\n素晴らしいです！`);
       return;
     }
 
     // ランダムに5個まで選ぶ
-    const count = Math.min(5, currentGradeErrors.length);
-    const shuffled = currentGradeErrors.sort(() => 0.5 - Math.random()).slice(0, count);
+    const count = Math.min(5, reviewKanji.length);
+    const shuffled = reviewKanji.sort(() => 0.5 - Math.random()).slice(0, count);
 
-    // 読みテストベースで再テストとして開始（復習テストは「間違えた問題」と同じ形式）
-    // failedQuestions と同じフォーマットに変換する
-    const customQuestions = shuffled.map(err => {
-      return {
-        char: err.char,
-        readingType: err.mode === 'reading' ? 'onyomi' : 'kunyomi', // モードが記録されていれば使う。今回は適当に。
-        correctAnswer: '' // startRetry側で再計算させる
-      };
-    });
-
-    // 今回はシンプルに読み・書き問題のどちらかに飛ばす。ここでは読み問題として開始する
     this.showScreen('test-reading');
     
-    // TestReading.startRetryは回答オブジェクト(failedQuestions)を要求するので、
-    // ダミーの回答オブジェクトを作成して渡す
-    const dummyFailed = shuffled.map(err => {
-      const k = getKanjiByChar(err.char);
-      const fallbackReading = k ? k.readings[0] : {type: 'onyomi', reading: 'ダミー'};
+    // startRetry用のダミー回答オブジェクトを作成（実際のエラー読みを使用）
+    const dummyFailed = shuffled.map(item => {
       return {
-        char: err.char,
-        readingType: fallbackReading.type,
-        correctAnswer: fallbackReading.reading
+        char: item.char,
+        readingType: item.readingType,
+        correctAnswer: item.reading
       };
     });
     

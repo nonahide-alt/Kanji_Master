@@ -85,7 +85,7 @@ const TestWriting = {
     if (!this.isAnswerShown && !this.answered) {
       actionAreaHtml = `
         <button class="btn btn-primary test-submit-btn" style="padding: 15px 40px; font-size: 1.2rem;" onclick="TestWriting.showAnswer()">
-          👁️ 正解を表示
+          📖 正解を表示
         </button>
       `;
     } else if (this.isAnswerShown && !this.answered) {

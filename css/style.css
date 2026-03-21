@@ -388,6 +388,16 @@ body {
 .menu-card-icon {
   font-size: 2.5rem;
   margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+.menu-icon-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 }
 
 .menu-card-title {
@@ -503,6 +513,10 @@ body {
 
 .star-filled {
   color: var(--status-yellow);
+}
+
+.star-filled.star-red {
+  color: var(--status-red);
 }
 
 .star-empty {

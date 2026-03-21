@@ -133,27 +133,41 @@ const Storage = {
     });
 
     if (kanjiQuestions.length === 0) {
-      return { color: "gray", stars, totalStars, filledStars: 0, label: "未学習" };
+      return { color: "gray", stars, totalStars, filledStars: 0, label: "未学習", sentenceStars, reviewStreaks: {} };
     }
 
-    // エラー判定
-    const lastResults = {};
+    // === 各読みごとの「間違い後の連続正解回数」を追跡 ===
+    const MASTERY_STREAK = 3; // マスター昇格に必要な連続正解数
+    // 読みごとの最後のエラーの有無と、エラー後の連続正解数を計算
+    const readingStreaks = {}; // key: targetReading => { hasError, streak }
+    const readingHasError = {}; // 読みごとに間違い履歴があるか
+
     kanjiQuestions.forEach(q => {
-      if (q.matchedReading) {
-        lastResults[q.matchedReading] = q.correct;
+      const reading = q.matchedReading || q.targetReading || q.correctAnswer;
+      if (!reading) return;
+      if (!readingStreaks[reading]) {
+        readingStreaks[reading] = { hasError: false, streak: 0 };
+      }
+      if (!q.correct) {
+        readingStreaks[reading].hasError = true;
+        readingStreaks[reading].streak = 0; // リセット
+      } else {
+        readingStreaks[reading].streak++;
       }
     });
-    let hasRecentError = Object.values(lastResults).some(c => !c);
-    const hasAnyError = kanjiQuestions.some(q => !q.correct);
+
+    // 要復習の判定: 間違いがあり、まだ3回連続正解していない読みがあれば要復習
+    let hasUnresolvedError = false;
+    Object.values(readingStreaks).forEach(info => {
+      if (info.hasError && info.streak < MASTERY_STREAK) {
+        hasUnresolvedError = true;
+      }
+    });
 
     let color, label;
-    if (hasRecentError || hasAnyError) {
+    if (hasUnresolvedError) {
       color = "red";
       label = "要復習";
-      if (filledStars === totalStars && !hasRecentError) {
-        color = "blue";
-        label = "マスター";
-      }
     } else if (filledStars === totalStars) {
       color = "blue";
       label = "マスター";
@@ -165,10 +179,7 @@ const Storage = {
       label = "未学習";
     }
 
-    // 実際の星表示用にはsentenceStars（問題数分の星）を使わせる必要があるかもしれない。
-    // 現状のUIがallReadings(stars)を使っているなら、不整合が残る。
-    // そのため、starsに加えて、実際の星（問題ベース）をstatus.sentenceStarsとして返す。
-    return { color, stars, totalStars, filledStars, label, sentenceStars };
+    return { color, stars, totalStars, filledStars, label, sentenceStars, reviewStreaks: readingStreaks, masteryStreak: MASTERY_STREAK };
   },
 
   // 日別の学習量を集計
@@ -215,6 +226,35 @@ const Storage = {
   // モード別にフィルタした間違い一覧
   getErrorsByMode(mode) {
     return this.getErrors().filter(e => e.mode === mode);
+  },
+
+  // モード別に間違えた回数が多い漢字TOP50を取得
+  getErrorRankingByMode(mode, limit = 50) {
+    const errors = this.getErrorsByMode(mode);
+    const countMap = {};
+
+    errors.forEach(err => {
+      if (!countMap[err.char]) {
+        countMap[err.char] = {
+          char: err.char,
+          grade: err.grade,
+          count: 0,
+          lastErrorDate: err.date
+        };
+      }
+      countMap[err.char].count++;
+      // getErrorsは新しい順(reverseされている)なので最初の出現が最新
+    });
+
+    // 回数が多い順にソート、同数の場合は最新エラー日が新しい順
+    const ranking = Object.values(countMap).sort((a, b) => {
+      if (b.count !== a.count) {
+        return b.count - a.count;
+      }
+      return b.lastErrorDate.localeCompare(a.lastErrorDate);
+    });
+
+    return ranking.slice(0, limit);
   },
 
   // 漢字ごとの間違い日と復習スケジュールを取得
@@ -334,13 +374,17 @@ const Storage = {
   SETTINGS_KEY: 'kanjiMaster_settings',
 
   getSetting(key) {
+    const defaults = {
+      'readingSelfReport': true
+    };
     const data = localStorage.getItem(this.SETTINGS_KEY);
-    if (!data) return null;
+    if (!data) return defaults[key] !== undefined ? defaults[key] : null;
     try {
       const settings = JSON.parse(data);
-      return settings[key] !== undefined ? settings[key] : null;
+      if (settings[key] !== undefined) return settings[key];
+      return defaults[key] !== undefined ? defaults[key] : null;
     } catch {
-      return null;
+      return defaults[key] !== undefined ? defaults[key] : null;
     }
   },
 

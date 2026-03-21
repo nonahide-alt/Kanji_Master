@@ -18,20 +18,24 @@ const KanjiDetail = {
     const kunyomi = kanji.readings.filter(r => r.type === 'kunyomi');
 
     // 読みのステータスで星を表示（例文の数だけ表示する）
+    const isReadReview = statusReading.color === 'red';
     let readingStarsHtml = '';
     for (let i = 0; i < statusReading.totalStars; i++) {
         const filled = i < statusReading.filledStars;
-        readingStarsHtml += `<span class="${filled ? 'star-filled' : 'star-empty'}">${filled ? '\u2605' : '\u2606'}</span>`;
+        const redClass = isReadReview ? ' star-red' : '';
+        readingStarsHtml += `<span class="${filled ? 'star-filled' + redClass : 'star-empty'}">${filled ? '\u2605' : '\u2606'}</span>`;
     }
     if (statusReading.totalStars === 0) {
         readingStarsHtml = `<span style="font-size: 0.7rem; padding: 1px 5px; border-radius: 4px; background: rgba(120,120,120,0.2); color: var(--text-secondary); border: 1px solid rgba(120,120,120,0.3);">対象外</span>`;
     }
 
     // 書きのステータスで星を表示
+    const isWriteReview = statusWriting.color === 'red';
     let writingStarsHtml = '';
     for (let i = 0; i < statusWriting.totalStars; i++) {
         const filled = i < statusWriting.filledStars;
-        writingStarsHtml += `<span class="${filled ? 'star-filled' : 'star-empty'}">${filled ? '\u2605' : '\u2606'}</span>`;
+        const redClass = isWriteReview ? ' star-red' : '';
+        writingStarsHtml += `<span class="${filled ? 'star-filled' + redClass : 'star-empty'}">${filled ? '\u2605' : '\u2606'}</span>`;
     }
     if (statusWriting.totalStars === 0) {
         writingStarsHtml = `<span style="font-size: 0.7rem; padding: 1px 5px; border-radius: 4px; background: rgba(120,120,120,0.2); color: var(--text-secondary); border: 1px solid rgba(120,120,120,0.3);">対象外</span>`;
@@ -71,14 +75,33 @@ const KanjiDetail = {
       `<span class="example-tag">${e}</span>`
     ).join('');
 
-    const sentencesHtml = kanji.exampleSentences && kanji.exampleSentences.length > 0
+     const sentencesHtml = kanji.exampleSentences && kanji.exampleSentences.length > 0
       ? kanji.exampleSentences.map(sen => {
           const isReadMastered = statusReading.stars.find(s => s.reading === sen.targetReading)?.filled || false;
           const isWriteMastered = statusWriting.stars.find(s => s.reading === sen.targetReading)?.filled || false;
           
-          const rIcon = isReadMastered ? '<span class="star-filled">★</span>' : '<span class="star-empty">☆</span>';
-          const wIcon = isWriteMastered ? '<span class="star-filled">★</span>' : '<span class="star-empty">☆</span>';
+          const rRedClass = isReadReview ? ' star-red' : '';
+          const wRedClass = isWriteReview ? ' star-red' : '';
+          const rIcon = isReadMastered ? `<span class="star-filled${rRedClass}">★</span>` : '<span class="star-empty">☆</span>';
+          const wIcon = isWriteMastered ? `<span class="star-filled${wRedClass}">★</span>` : '<span class="star-empty">☆</span>';
           
+          // 連続正解カウント表示（要復習の読みのみ）
+          const rStreakInfo = statusReading.reviewStreaks[sen.targetReading];
+          let rStreakHtml = '';
+          if (rStreakInfo && rStreakInfo.hasError && rStreakInfo.streak < statusReading.masteryStreak) {
+            rStreakHtml = `<span style="font-size:0.65rem;padding:1px 5px;border-radius:4px;background:rgba(255,107,107,0.15);color:var(--status-red);margin-left:4px;">正解 ${rStreakInfo.streak}/${statusReading.masteryStreak}回</span>`;
+          } else if (rStreakInfo && rStreakInfo.hasError && rStreakInfo.streak >= statusReading.masteryStreak) {
+            rStreakHtml = `<span style="font-size:0.65rem;padding:1px 5px;border-radius:4px;background:rgba(77,219,122,0.15);color:var(--status-green);margin-left:4px;">復習マスター!</span>`;
+          }
+
+          const wStreakInfo = statusWriting.reviewStreaks[sen.targetReading];
+          let wStreakHtml = '';
+          if (wStreakInfo && wStreakInfo.hasError && wStreakInfo.streak < statusWriting.masteryStreak) {
+            wStreakHtml = `<span style="font-size:0.65rem;padding:1px 5px;border-radius:4px;background:rgba(255,107,107,0.15);color:var(--status-red);margin-left:4px;">正解 ${wStreakInfo.streak}/${statusWriting.masteryStreak}回</span>`;
+          } else if (wStreakInfo && wStreakInfo.hasError && wStreakInfo.streak >= statusWriting.masteryStreak) {
+            wStreakHtml = `<span style="font-size:0.65rem;padding:1px 5px;border-radius:4px;background:rgba(77,219,122,0.15);color:var(--status-green);margin-left:4px;">復習マスター!</span>`;
+          }
+
           const rText = sen.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$1</strong></u>');
           const wText = sen.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$2</strong></u>');
 
@@ -87,12 +110,14 @@ const KanjiDetail = {
               <div style="display: flex; align-items: flex-start; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
                 <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; background: rgba(124, 108, 240, 0.2); color: #9d8ff8; border: 1px solid rgba(124, 108, 240, 0.3); margin-right: 8px; flex-shrink: 0; margin-top: 2px;">📖 読み</span>
                 <span style="margin-right: 12px; font-size: 1.1rem; flex-shrink: 0;">${rIcon}</span>
-                <span style="font-size: 1.05rem; line-height: 1.4;">${rText}</span>
+                <span style="font-size: 1.05rem; line-height: 1.4; flex: 1;">${rText}</span>
+                ${rStreakHtml}
               </div>
               <div style="display: flex; align-items: flex-start;">
                 <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; background: rgba(77, 219, 122, 0.2); color: #4ddb7a; border: 1px solid rgba(77, 219, 122, 0.3); margin-right: 8px; flex-shrink: 0; margin-top: 2px;">✏️ 書き</span>
                 <span style="margin-right: 12px; font-size: 1.1rem; flex-shrink: 0;">${wIcon}</span>
-                <span style="font-size: 1.05rem; line-height: 1.4;">${wText}</span>
+                <span style="font-size: 1.05rem; line-height: 1.4; flex: 1;">${wText}</span>
+                ${wStreakHtml}
               </div>
             </div>
           `;
@@ -105,6 +130,12 @@ const KanjiDetail = {
 
     const hex = char.charCodeAt(0).toString(16).padStart(5, '0');
     const svgUrl = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/${hex}.svg`;
+
+    // 要復習時の「3回連続正解でマスター」説明
+    let reviewHintHtml = '';
+    if (isReadReview || isWriteReview) {
+      reviewHintHtml = `<div style="text-align:center;margin-top:8px;font-size:0.75rem;color:var(--text-secondary);background:rgba(255,107,107,0.08);padding:6px 12px;border-radius:8px;border:1px solid rgba(255,107,107,0.15);">💡 要復習の読みは、連続3回正解するとマスターに昇格します</div>`;
+    }
 
     container.innerHTML = `
       <div class="detail-card">
@@ -132,6 +163,7 @@ const KanjiDetail = {
             <span class="detail-status-badge badge-${statusReading.color}">📖 読み：${statusReading.label}</span>
             <span class="detail-status-badge badge-${statusWriting.color}">✏️ 書き：${statusWriting.label}</span>
           </div>
+          ${reviewHintHtml}
         </div>
 
 

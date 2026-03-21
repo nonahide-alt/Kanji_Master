@@ -52,7 +52,9 @@
             <div class="menu-card-desc">漢字カードを確認しよう</div>
           </button>
           <button class="menu-card" onclick="App.navigate('test-reading')" id="menu-reading-btn">
-            <div class="menu-card-icon">👁️</div>
+            <div class="menu-card-icon">
+              <img src="assets/reading-test-icon.svg" alt="読みテスト" class="menu-icon-img">
+            </div>
             <div class="menu-card-title">読みテスト</div>
             <div class="menu-card-desc">漢字の読み方を答えよう</div>
           </button>
@@ -61,12 +63,17 @@
             <div class="menu-card-title">書きテスト</div>
             <div class="menu-card-desc">読みから漢字を書こう</div>
           </button>
-          <button class="menu-card" onclick="App.startReviewTest()" id="menu-review-btn">
+          <button class="menu-card" onclick="App.showReviewList()" id="menu-review-btn">
             <div class="menu-card-icon">🔥</div>
             <div class="menu-card-title">要復習テスト</div>
             <div class="menu-card-desc">間違えた問題に再挑戦</div>
           </button>
         </div>
+      </section>
+
+      <!-- 要復習リスト画面 -->
+      <section id="review-list-screen" class="screen">
+        <div id="review-list-content"></div>
       </section>
 
       <!-- 漢字一覧画面 -->
@@ -117,6 +124,7 @@
   <script src="js/kanji-detail.js"></script>
   <script src="js/test-reading.js"></script>
   <script src="js/test-writing.js"></script>
+  <script src="js/review-list.js"></script>
   <script src="js/history.js"></script>
   <script src="js/app.js"></script>
 </body>

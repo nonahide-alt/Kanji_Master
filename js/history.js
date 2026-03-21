@@ -7,6 +7,7 @@ const History = {
   currentTab: 'chart',
   errorModeFilter: 'reading', // 間違い一覧のモードフィルタ
   scheduleModeFilter: 'reading', // 復習スケジュールのモードフィルタ
+  rankingModeFilter: 'reading', // ランキングのモードフィルタ
 
   render() {
     const container = document.getElementById('history-content');
@@ -20,8 +21,10 @@ const History = {
             onclick="History.switchTab('chart')">学習量</button>
           <button class="history-tab ${this.currentTab === 'errors' ? 'active' : ''}"
             onclick="History.switchTab('errors')">間違い一覧</button>
+          <button class="history-tab ${this.currentTab === 'ranking' ? 'active' : ''}"
+            onclick="History.switchTab('ranking')">間違いTOP50</button>
           <button class="history-tab ${this.currentTab === 'schedule' ? 'active' : ''}"
-            onclick="History.switchTab('schedule')">復習スケジュール</button>
+            onclick="History.switchTab('schedule')">スケジュール</button>
         </div>
 
         <div id="history-tab-content"></div>
@@ -37,7 +40,8 @@ const History = {
     const tabs = document.querySelectorAll('.history-tab');
     if (tab === 'chart') tabs[0].classList.add('active');
     else if (tab === 'errors') tabs[1].classList.add('active');
-    else tabs[2].classList.add('active');
+    else if (tab === 'ranking') tabs[2].classList.add('active');
+    else tabs[3].classList.add('active');
     this.renderTabContent();
   },
 
@@ -47,6 +51,8 @@ const History = {
       this.renderChart(container);
     } else if (this.currentTab === 'errors') {
       this.renderErrors(container);
+    } else if (this.currentTab === 'ranking') {
+      this.renderRanking(container);
     } else {
       this.renderSchedule(container);
     }
@@ -216,9 +222,9 @@ const History = {
       const moreCount = g.details.length > 3 ? `<div style="font-size:0.8rem;color:#666;">他 ${g.details.length - 3} 件</div>` : '';
 
       return `
-        <div class="error-item" style="flex-direction:column;align-items:stretch;">
+        <button class="kanji-list-btn error-item" style="flex-direction:column;align-items:stretch;width:100%;text-align:left;cursor:pointer;transition:all 0.2s;background:var(--card-bg);border:1px solid var(--border-color);color:var(--text-primary);" onclick="App.showDetail('${g.char}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-            <span class="error-item-char">${g.char}</span>
+            <span class="error-item-char" style="color:var(--text-primary);">${g.char}</span>
             <div style="flex:1;">
               <div style="font-size:0.85rem;color:var(--text-secondary);">${g.grade}年生</div>
               ${detailLines}
@@ -228,7 +234,7 @@ const History = {
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
             ${datesHtml}
           </div>
-        </div>
+        </button>
       `;
     }).join('');
 
@@ -237,6 +243,69 @@ const History = {
 
   setErrorMode(mode) {
     this.errorModeFilter = mode;
+    this.renderTabContent();
+  },
+
+  // ==================== 間違いTOP50ランキング ====================
+  renderRanking(container) {
+    const modeFilter = this.rankingModeFilter;
+
+    // モード切替タブ
+    const modeTabsHtml = `
+      <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;">
+        <button class="btn ${modeFilter === 'reading' ? 'btn-primary' : 'btn-secondary'}" style="padding:6px 20px;" onclick="History.setRankingMode('reading')">
+          📖 読み
+        </button>
+        <button class="btn ${modeFilter === 'writing' ? 'btn-primary' : 'btn-secondary'}" style="padding:6px 20px;" onclick="History.setRankingMode('writing')">
+          ✏️ 書き
+        </button>
+      </div>
+    `;
+
+    const ranking = Storage.getErrorRankingByMode(modeFilter, 50);
+
+    if (ranking.length === 0) {
+      container.innerHTML = modeTabsHtml + `
+        <div class="empty-state">
+          <div class="empty-state-icon">🏆</div>
+          <div class="empty-state-text">${modeFilter === 'reading' ? '読み' : '書き'}の間違いはありません。<br>素晴らしい！</div>
+        </div>
+      `;
+      return;
+    }
+
+    const rankingHtml = ranking.map((item, index) => {
+      let rankIcon = '';
+      if (index === 0) rankIcon = '🥇';
+      else if (index === 1) rankIcon = '🥈';
+      else if (index === 2) rankIcon = '🥉';
+      else rankIcon = `<span style="font-size:1.2rem;font-weight:bold;color:var(--text-secondary);width:24px;display:inline-block;text-align:center;">${index + 1}</span>`;
+
+      return `
+        <button class="kanji-list-btn" style="display:flex;align-items:center;background:var(--card-bg);border-radius:12px;padding:12px 16px;margin-bottom:12px;border:1px solid var(--border-color);width:100%;text-align:left;cursor:pointer;transition:all 0.2s;" onclick="App.showDetail('${item.char}')" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+          <div style="margin-right:16px;">${rankIcon}</div>
+          <div style="font-size:2rem;font-weight:bold;margin-right:16px;color:var(--text-primary);">${item.char}</div>
+          <div style="flex:1;">
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:4px;">${item.grade}年生</div>
+            <div style="font-size:0.75rem;color:#9898b0;">最終間違い: ${item.lastErrorDate}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.5rem;font-weight:bold;color:var(--status-red);">${item.count}<span style="font-size:1rem;color:var(--text-secondary);"> 回</span></div>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    container.innerHTML = modeTabsHtml + `
+      <div style="text-align:center;margin-bottom:16px;">
+        <span style="font-size:1.2rem;font-weight:bold;color:var(--text-primary);">よく間違える漢字TOP50</span>
+      </div>
+      <div>${rankingHtml}</div>
+    `;
+  },
+
+  setRankingMode(mode) {
+    this.rankingModeFilter = mode;
     this.renderTabContent();
   },
 

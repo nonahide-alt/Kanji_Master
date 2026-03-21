@@ -92,6 +92,19 @@ const TestReading = {
     const progress = ((this.currentIndex) / this.questions.length * 100);
     const typeLabel = q.readingType === 'onyomi' ? '音読み' : '訓読み';
 
+    // 復習進捗バッジ（要復習の読みの場合のみ表示）
+    let reviewStreakHtml = '';
+    const status = Storage.getKanjiStatus(q.char, 'reading');
+    if (status.color === 'red' && status.reviewStreaks) {
+      const streakInfo = status.reviewStreaks[q.targetReading];
+      if (streakInfo && streakInfo.hasError && streakInfo.streak >= status.masteryStreak) {
+        reviewStreakHtml = `<div style="text-align:center;margin-top:10px;"><span style="font-size:0.8rem;padding:4px 12px;border-radius:8px;background:rgba(77,219,122,0.12);color:var(--status-green);border:1px solid rgba(77,219,122,0.25);">✅ 復習マスター達成!</span></div>`;
+      } else {
+        const streak = streakInfo ? streakInfo.streak : 0;
+        reviewStreakHtml = `<div style="text-align:center;margin-top:10px;"><span style="font-size:0.8rem;padding:4px 12px;border-radius:8px;background:rgba(255,107,107,0.12);color:var(--status-red);border:1px solid rgba(255,107,107,0.25);">🔄 復習進捗: 連続正解 ${streak}/${status.masteryStreak}回</span></div>`;
+      }
+    }
+
     // --- 自己申告モードの問題表示 ---
     if (this.selfReportMode) {
       let actionHtml = '';
@@ -100,7 +113,7 @@ const TestReading = {
           <div class="test-hint">下線部の${typeLabel}を考えてください</div>
           <div class="test-input-area">
             <button class="btn btn-primary test-submit-btn" style="padding: 15px 40px; font-size: 1.1rem;" onclick="TestReading.showAnswer()">
-              👁️ 正解を表示
+              📖 正解を表示
             </button>
           </div>`;
       } else if (this.isAnswerShown && !this.answered) {
@@ -130,6 +143,7 @@ const TestReading = {
           <div class="test-question-card">
             <span class="test-mode-label">読みテスト (自己申告) ― ${typeLabel}</span>
             <div class="test-sentence-display">${q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$1</strong></u>')}</div>
+            ${reviewStreakHtml}
             <div class="test-action-area" id="test-action-area" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               ${actionHtml}
             </div>
@@ -152,6 +166,7 @@ const TestReading = {
         <div class="test-question-card">
           <span class="test-mode-label">読みテスト ― ${typeLabel}</span>
           <div class="test-sentence-display">${q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$1</strong></u>')}</div>
+          ${reviewStreakHtml}
           <div class="test-hint">下線部の${typeLabel}をひらがな/カタカナで答えてください</div>
           <div class="test-input-area">
             <input type="text" class="test-input" id="test-answer-input"

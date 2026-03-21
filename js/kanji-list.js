@@ -43,9 +43,18 @@ const KanjiList = {
     // 漢字グリッド
     const gridHtml = kanjiList.map(kanji => {
       const status = Storage.getKanjiStatus(kanji.char, mode);
-      const starsHtml = status.stars.map(s =>
-        `<span class="${s.filled ? 'star-filled' : 'star-empty'}">${s.filled ? '★' : '☆'}</span>`
-      ).join('');
+      const isReview = status.color === 'red';
+      
+      let starsHtml = '';
+      for (let i = 0; i < status.totalStars; i++) {
+        const filled = i < status.filledStars;
+        const redClass = isReview ? ' star-red' : '';
+        starsHtml += `<span class="${filled ? 'star-filled' + redClass : 'star-empty'}">${filled ? '★' : '☆'}</span>`;
+      }
+      // 例文がない場合（総星数0）の表示
+      if (status.totalStars === 0) {
+        starsHtml = `<span style="font-size: 0.6rem; opacity: 0.6;">対象外</span>`;
+      }
 
       return `
         <button class="kanji-btn status-${status.color}" onclick="App.showDetail('${kanji.char}')" title="${status.label}">
