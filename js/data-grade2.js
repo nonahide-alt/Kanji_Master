@@ -857,4 +857,10 @@ const KANJI_GRADE2_DATA = {
     hint: "つちへんに也を書く。",
     examples: [{ reading: "チ", text: "地図をみる" }, { reading: "ジ", text: "地面にすわる" }]
   },
+  "秋": {
+    on: ["シュウ"], kun: ["あき"], radical: "禾",
+    etymology: "禾（のぎ・穀物）と火を合わせて、収穫の時期である「あき」を表す。",
+    hint: "のぎへんに火を書く。",
+    examples: [{ reading: "シュウ", text: "秋分（しゅうぶん）の日" }, { reading: "あき", text: "秋がくる" }]
+  }
 };
