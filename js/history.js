@@ -12,9 +12,22 @@ const History = {
   render() {
     const container = document.getElementById('history-content');
 
+    const todayStr = (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+
     container.innerHTML = `
       <div class="history-container">
         <h2 class="section-title">📊 学習履歴</h2>
+
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 12px; gap: 8px;">
+          <label for="csv-export-date" style="font-size: 0.9rem; color: var(--text-secondary);">日付指定出力:</label>
+          <input type="date" id="csv-export-date" class="form-control" style="width: auto; padding: 4px 8px; font-size: 0.9rem;" value="${todayStr}">
+          <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;" onclick="History.exportCSV()">
+            📥 CSV出力
+          </button>
+        </div>
 
         <div class="history-tabs">
           <button class="history-tab ${this.currentTab === 'chart' ? 'active' : ''}"
@@ -403,5 +416,89 @@ const History = {
   setScheduleMode(mode) {
     this.scheduleModeFilter = mode;
     this.renderTabContent();
+  },
+
+  // ==================== CSV出力 ====================
+  exportCSV() {
+    const dateInput = document.getElementById('csv-export-date')?.value;
+    if (!dateInput) {
+      alert("日付を指定してください。");
+      return;
+    }
+
+    const history = Storage.getHistory();
+    // 指定された日付のセッションのみ抽出
+    const targetSessions = history.filter(s => s.date === dateInput);
+
+    if (targetSessions.length === 0) {
+      alert(`${dateInput} の学習データはありません。`);
+      return;
+    }
+
+    // 集計情報
+    let totalQuestions = 0;
+    let totalCorrect = 0;
+    let totalIncorrect = 0;
+
+    targetSessions.forEach(session => {
+      session.questions.forEach(q => {
+        totalQuestions++;
+        if (q.correct) {
+          totalCorrect++;
+        } else {
+          totalIncorrect++;
+        }
+      });
+    });
+
+    const accuracyStr = totalQuestions > 0 ? ((totalCorrect / totalQuestions) * 100).toFixed(1) + '%' : '0%';
+
+    // CSV作成
+    let csvContent = `対象日,${dateInput}\n`;
+    csvContent += `対象セッション数,${targetSessions.length}\n`;
+    csvContent += `総問題数,${totalQuestions}\n`;
+    csvContent += `正解数,${totalCorrect}\n`;
+    csvContent += `不正解数,${totalIncorrect}\n`;
+    csvContent += `正答率,${accuracyStr}\n\n`;
+
+    // データヘッダー
+    csvContent += "日時,モード,学年,漢字,正誤,正解,ユーザー回答\n";
+
+    targetSessions.forEach(session => {
+      const timeStr = new Date(session.timestamp).toLocaleTimeString('ja-JP');
+      const modeStr = session.mode === 'reading' ? '読み' : '書き';
+      const gradeStr = session.grade;
+
+      session.questions.forEach(q => {
+        const isCorrect = q.correct ? '正解' : '不正解';
+        const target = q.correctAnswer || q.targetReading || '';
+        const userAns = q.userAnswer || '';
+        const char = q.char || '';
+
+        // CSV用にエスケープ処理
+        const row = [
+            `${session.date} ${timeStr}`,
+            modeStr,
+            `${gradeStr}年生`,
+            char,
+            isCorrect,
+            `"${target.replace(/"/g, '""')}"`,
+            `"${userAns.replace(/"/g, '""')}"`
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+    });
+
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kanjimaster_history_${dateInput}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 };
