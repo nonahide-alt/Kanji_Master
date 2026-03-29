@@ -92,6 +92,11 @@ const TestWriting = {
       const hex = q.char.charCodeAt(0).toString(16).padStart(5, '0');
       const svgUrl = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/${hex}.svg`;
 
+      // 全文ひらがなの検索
+      const plainText = q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '$1');
+      const fullHiragana = (typeof HIRAGANA_DATA !== 'undefined' && HIRAGANA_DATA[plainText]) ? HIRAGANA_DATA[plainText] : '';
+      const hiraganaSection = fullHiragana ? `<div style="margin-bottom: 20px; font-size: 0.95rem; background: var(--bg-card); border: 1px solid var(--border-glass); padding: 10px; border-radius: 6px; display: inline-block; color: var(--text-primary);">💡 全文ひらがな: <span style="font-weight: bold; color: var(--accent-cyan);">${fullHiragana}</span></div>` : '';
+
       actionAreaHtml = `
         <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin: 20px 0; flex-wrap: wrap;">
           <div style="text-align: center;">
@@ -107,6 +112,7 @@ const TestWriting = {
             </div>
           </div>
         </div>
+        ${hiraganaSection}
         <div style="font-size: 18px; margin-bottom: 20px; color: var(--text-primary); margin-top: 15px;">
           この漢字、正しく書けましたか？
         </div>
