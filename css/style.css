@@ -1261,3 +1261,281 @@ body {
   background: rgba(77, 219, 122, 0.3);
 }
 
+/* ======================== タブレットモード ======================== */
+/* iPad / iPhone など大画面タッチデバイスで見やすくするための拡大表示 */
+
+body.tablet-mode {
+  font-size: 20px;
+}
+
+/* ヘッダー */
+body.tablet-mode #app-title {
+  font-size: 1.6rem;
+}
+
+body.tablet-mode .title-icon {
+  width: 42px;
+  height: 42px;
+  font-size: 1.3rem;
+}
+
+body.tablet-mode .header-btn {
+  padding: 10px 18px;
+  font-size: 1rem;
+}
+
+/* ホーム画面 */
+body.tablet-mode .hero-subtitle {
+  font-size: 1.4rem;
+}
+
+body.tablet-mode .grade-card {
+  padding: 28px;
+}
+
+body.tablet-mode .grade-card-title {
+  font-size: 1.6rem;
+}
+
+body.tablet-mode .grade-card-count {
+  font-size: 1rem;
+}
+
+body.tablet-mode .grade-card-stats {
+  font-size: 1rem;
+}
+
+/* 学年メニュー */
+body.tablet-mode .section-title {
+  font-size: 1.8rem;
+}
+
+body.tablet-mode .menu-card {
+  padding: 36px 28px;
+}
+
+body.tablet-mode .menu-card-icon {
+  font-size: 3rem;
+}
+
+body.tablet-mode .menu-card-title {
+  font-size: 1.4rem;
+}
+
+body.tablet-mode .menu-card-desc {
+  font-size: 1.05rem;
+}
+
+/* 漢字一覧 */
+body.tablet-mode .legend-item {
+  font-size: 1rem;
+}
+
+body.tablet-mode .kanji-char {
+  font-size: 2.5rem;
+}
+
+body.tablet-mode .kanji-btn {
+  padding: 16px 12px;
+}
+
+body.tablet-mode .kanji-stars {
+  font-size: 0.8rem;
+}
+
+/* テスト画面 */
+body.tablet-mode .test-progress-text {
+  font-size: 1.1rem;
+}
+
+body.tablet-mode .test-question-card {
+  padding: 48px 36px;
+}
+
+body.tablet-mode .test-mode-label {
+  font-size: 1rem;
+  padding: 6px 16px;
+}
+
+body.tablet-mode .test-kanji-display {
+  font-size: 9rem !important;
+}
+
+body.tablet-mode .test-sentence-display {
+  font-size: 2rem !important;
+  line-height: 1.8 !important;
+  margin: 24px 0 !important;
+}
+
+body.tablet-mode .test-reading-display {
+  font-size: 3.2rem;
+}
+
+body.tablet-mode .test-hint {
+  font-size: 1.1rem;
+}
+
+body.tablet-mode .test-input {
+  font-size: 1.6rem;
+  padding: 18px 24px;
+  max-width: 400px;
+}
+
+body.tablet-mode .test-input::placeholder {
+  font-size: 1.1rem;
+}
+
+body.tablet-mode .test-submit-btn {
+  font-size: 1.2rem !important;
+  padding: 16px 36px !important;
+  min-width: 240px;
+}
+
+body.tablet-mode .test-feedback {
+  font-size: 1.2rem;
+  padding: 20px;
+}
+
+body.tablet-mode .test-feedback-icon {
+  font-size: 2.5rem;
+}
+
+body.tablet-mode .test-next-btn {
+  font-size: 1.1rem !important;
+  padding: 14px 32px !important;
+}
+
+/* テスト - 自己申告ボタン */
+body.tablet-mode .test-action-area .btn-danger,
+body.tablet-mode .test-action-area .btn-success {
+  font-size: 1.3rem !important;
+  padding: 18px 36px !important;
+}
+
+/* テスト - 正解表示の漢字 */
+body.tablet-mode .test-correct-answer-display {
+  font-size: 110px !important;
+}
+
+/* テスト結果画面 */
+body.tablet-mode .result-score-card {
+  padding: 48px;
+}
+
+body.tablet-mode .result-score-number {
+  font-size: 5rem;
+}
+
+body.tablet-mode .result-score-label {
+  font-size: 1.2rem;
+}
+
+body.tablet-mode .result-message {
+  font-size: 1.4rem;
+}
+
+body.tablet-mode .result-item {
+  padding: 16px 20px;
+  font-size: 1.1rem;
+}
+
+body.tablet-mode .result-item-char {
+  font-size: 1.8rem;
+}
+
+body.tablet-mode .result-actions .btn {
+  font-size: 1.1rem;
+  padding: 14px 28px;
+}
+
+/* 漢字詳細 */
+body.tablet-mode .detail-kanji-char {
+  font-size: 8rem;
+}
+
+body.tablet-mode .detail-card {
+  padding: 40px;
+}
+
+body.tablet-mode .detail-section-title {
+  font-size: 1.05rem;
+}
+
+body.tablet-mode .detail-text {
+  font-size: 1.1rem;
+}
+
+body.tablet-mode .reading-tag {
+  font-size: 1.05rem;
+  padding: 8px 16px;
+}
+
+body.tablet-mode .example-tag,
+body.tablet-mode .radical-tag {
+  font-size: 1rem;
+  padding: 6px 14px;
+}
+
+body.tablet-mode .detail-stars-label {
+  font-size: 1.05rem;
+}
+
+body.tablet-mode .detail-stars-display {
+  font-size: 1.5rem;
+}
+
+/* 共通ボタン */
+body.tablet-mode .btn {
+  font-size: 1.05rem;
+  padding: 12px 28px;
+}
+
+/* 確認ダイアログ / 設定 */
+body.tablet-mode .confirm-dialog {
+  padding: 36px;
+}
+
+body.tablet-mode .confirm-title {
+  font-size: 1.3rem;
+}
+
+/* 履歴 */
+body.tablet-mode .history-tab {
+  font-size: 1.05rem;
+  padding: 12px 20px;
+}
+
+body.tablet-mode .error-item {
+  font-size: 1.05rem;
+  padding: 16px 20px;
+}
+
+body.tablet-mode .error-item-char {
+  font-size: 1.8rem;
+}
+
+/* レスポンシブ上書き: タブレットモード時は小画面用の縮小をやめる */
+@media (max-width: 600px) {
+  body.tablet-mode #app-title {
+    font-size: 1.4rem;
+  }
+
+  body.tablet-mode .title-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  body.tablet-mode .kanji-char {
+    font-size: 2.2rem;
+  }
+
+  body.tablet-mode .test-kanji-display {
+    font-size: 7rem !important;
+  }
+
+  body.tablet-mode .detail-kanji-char {
+    font-size: 6rem;
+  }
+}
+

@@ -375,7 +375,8 @@ const Storage = {
 
   getSetting(key) {
     const defaults = {
-      'readingSelfReport': true
+      'readingSelfReport': true,
+      'tabletMode': false
     };
     const data = localStorage.getItem(this.SETTINGS_KEY);
     if (!data) return defaults[key] !== undefined ? defaults[key] : null;

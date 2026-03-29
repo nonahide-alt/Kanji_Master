@@ -8,8 +8,18 @@ const App = {
   history: [], // 画面遷移履歴（戻るボタン用）
 
   init() {
+    this.applyTabletMode();
     this.renderHome();
     this.updateBackButton();
+  },
+
+  applyTabletMode() {
+    const tabletMode = Storage.getSetting('tabletMode') === true;
+    if (tabletMode) {
+      document.body.classList.add('tablet-mode');
+    } else {
+      document.body.classList.remove('tablet-mode');
+    }
   },
 
   // ======================== 画面遷移 ========================
@@ -365,12 +375,13 @@ const App = {
     if (old) old.remove();
 
     const selfReport = Storage.getSetting('readingSelfReport') === true;
+    const tabletMode = Storage.getSetting('tabletMode') === true;
 
     const overlay = document.createElement('div');
     overlay.id = 'settings-modal';
     overlay.className = 'confirm-overlay';
     overlay.innerHTML = `
-      <div class="confirm-dialog" style="max-width: 360px; width: 90%;">
+      <div class="confirm-dialog" style="max-width: 400px; width: 90%;">
         <div class="confirm-title" style="font-size: 1.1rem;">⚙️ 設定</div>
         <div style="margin: 20px 0;">
           <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-glass);">
@@ -380,6 +391,16 @@ const App = {
             </div>
             <label class="settings-toggle" style="flex-shrink: 0; margin-left: 16px;">
               <input type="checkbox" id="setting-self-report" ${selfReport ? 'checked' : ''} onchange="App.onSettingChange('readingSelfReport', this.checked)">
+              <span class="settings-toggle-slider"></span>
+            </label>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-glass);">
+            <div>
+              <div style="font-size: 0.95rem; font-weight: 500;">📱 タブレットモード</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">iPad・iPhoneなどで文字やボタンを大きく表示します</div>
+            </div>
+            <label class="settings-toggle" style="flex-shrink: 0; margin-left: 16px;">
+              <input type="checkbox" id="setting-tablet-mode" ${tabletMode ? 'checked' : ''} onchange="App.onSettingChange('tabletMode', this.checked)">
               <span class="settings-toggle-slider"></span>
             </label>
           </div>
@@ -402,6 +423,9 @@ const App = {
 
   onSettingChange(key, value) {
     Storage.setSetting(key, value);
+    if (key === 'tabletMode') {
+      this.applyTabletMode();
+    }
   }
 };
 
