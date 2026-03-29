@@ -7,6 +7,84 @@ const App = {
   currentGrade: null,
   history: [], // 画面遷移履歴（戻るボタン用）
 
+  stages: [
+    { level: 0, icon: '🥚', title: 'たまご', desc: 'まだ殻の中。漢字の世界っておいしいのかな？' },
+    { level: 1, icon: '🐣', title: 'ひよこ', desc: 'ピヨピヨ！はじめての漢字に興味津々で目が離せない。' },
+    { level: 2, icon: '🐥', title: 'わかどり', desc: '羽ばたく準備中。少しずつ漢字が読めるようになってきたぞ！' },
+    { level: 3, icon: '🐔', title: 'にわとり', desc: 'コケコッコー！朝から晩まで漢字のことで頭がいっぱい（？）' },
+    { level: 4, icon: '🥉', title: 'ブロンズ', desc: '硬い決意のブロンズ！漢字の基本の型はバッチリだ。' },
+    { level: 5, icon: '🥈', title: 'シルバー', desc: 'いぶし銀の輝き。少し難しい漢字の読み書きもいける口。' },
+    { level: 6, icon: '🥇', title: 'ゴールド', desc: 'ピカピカのゴールド！クラスでも一目置かれる漢字マスター候補。' },
+    { level: 7, icon: '🏅', title: 'プラチナ', desc: '希少価値高め。プラチナ級の実力で、大人の書く字もスラスラ読める！' },
+    { level: 8, icon: '💎', title: 'ダイヤ', desc: '誰にも砕けない最強の頭脳。もはや漢字辞典とはマブダチだ。' },
+    { level: 9, icon: '🌟', title: 'マスター', desc: '漢字の真髄を極めし者。これ以上の壁はないと思いきや…？' },
+    { level: 10, icon: '👑', title: '伝説の漢字王', desc: 'すべての漢字を支配する生きた伝説。国語辞典に君の名前が載る日も近い…！' }
+  ],
+
+  overallRanks: [
+    { rank: 0, title: '見習い', icon: '🌱', color: '#a0aec0', desc: 'まずはここから。漢字の世界へようこそ！' },
+    { rank: 1, title: '初級マスター', icon: '🥉', color: '#4da6ff', desc: '基礎は身についてきたぞ。この調子！' },
+    { rank: 2, title: '中級マスター', icon: '🥈', color: '#4ddb7a', desc: '学年の半分を制覇！もう立派な漢字使い。' },
+    { rank: 3, title: '上級マスター', icon: '🥇', color: '#fbbf24', desc: 'ほとんどの漢字を網羅。達人は目前！' },
+    { rank: 4, title: '伝説の漢字王', icon: '👑', color: '#ff6b6b', desc: 'すべての漢字を完全制覇！君こそが真の漢字王だ！' }
+  ],
+
+  checkLevelUp(grade) {
+    const kanjiList = getKanjiByGrade(grade);
+    let readMastered = 0;
+    let writeMastered = 0;
+
+    kanjiList.forEach(k => {
+      const rs = Storage.getKanjiStatus(k.char, 'reading');
+      const ws = Storage.getKanjiStatus(k.char, 'writing');
+      if (rs.color === 'blue') readMastered++;
+      if (ws.color === 'blue') writeMastered++;
+    });
+
+    const totalKanji = kanjiList.length;
+    const readPercent = totalKanji > 0 ? Math.floor((readMastered / totalKanji) * 100) : 0;
+    const writePercent = totalKanji > 0 ? Math.floor((writeMastered / totalKanji) * 100) : 0;
+    const combinedPercent = totalKanji > 0 ? Math.floor(((readMastered + writeMastered) / (totalKanji * 2)) * 100) : 0;
+
+    let readLevel = Math.floor(readPercent / 10);
+    if (readLevel > 10) readLevel = 10;
+    let writeLevel = Math.floor(writePercent / 10);
+    if (writeLevel > 10) writeLevel = 10;
+
+    let currentRankIndex = 0;
+    if (combinedPercent >= 100) currentRankIndex = 4;
+    else if (combinedPercent >= 75) currentRankIndex = 3;
+    else if (combinedPercent >= 50) currentRankIndex = 2;
+    else if (combinedPercent >= 25) currentRankIndex = 1;
+
+    const rKey = 'gradeStage_R_' + grade;
+    const wKey = 'gradeStage_W_' + grade;
+    const oKey = 'gradeStage_O_' + grade;
+    
+    const prevRead = Storage.getSetting(rKey) || 0;
+    const prevWrite = Storage.getSetting(wKey) || 0;
+    const prevOverall = Storage.getSetting(oKey) || 0;
+
+    let alertData = null;
+    const gradeInfo = getGradeInfo().find(g => g.grade === grade);
+    const gradeName = gradeInfo ? gradeInfo.label : grade + '年';
+
+    // 優先順位: 全体ランクUP > 読みレベルUP > 書きレベルUP
+    if (currentRankIndex > prevOverall) {
+      alertData = { gradeName: gradeName, type: 'overall', stageData: this.overallRanks[currentRankIndex], current: currentRankIndex };
+    } else if (readLevel > prevRead) {
+      alertData = { gradeName: gradeName, type: 'read', stageData: this.stages[readLevel], current: readLevel };
+    } else if (writeLevel > prevWrite) {
+      alertData = { gradeName: gradeName, type: 'write', stageData: this.stages[writeLevel], current: writeLevel };
+    }
+
+    if (currentRankIndex > prevOverall) Storage.setSetting(oKey, currentRankIndex);
+    if (readLevel > prevRead) Storage.setSetting(rKey, readLevel);
+    if (writeLevel > prevWrite) Storage.setSetting(wKey, writeLevel);
+
+    return alertData;
+  },
+
   init() {
     this.applyTabletMode();
     this.renderHome();
@@ -101,36 +179,11 @@ const App = {
     homeBtn.style.visibility = isHome ? 'hidden' : 'visible';
   },
 
-  // ======================== ホーム画面 ========================
 
   renderHome() {
     const grid = document.getElementById('grade-grid');
     const gradeInfo = getGradeInfo();
     const gradeEmojis = ['🌸', '🌻', '🍀', '⭐', '🌊', '🔥'];
-
-    const levelUpAlerts = [];
-
-    const stages = [
-      { level: 0, icon: '🥚', title: 'たまご', desc: 'まだ殻の中。漢字の世界っておいしいのかな？' },
-      { level: 1, icon: '🐣', title: 'ひよこ', desc: 'ピヨピヨ！はじめての漢字に興味津々で目が離せない。' },
-      { level: 2, icon: '🐥', title: 'わかどり', desc: '羽ばたく準備中。少しずつ漢字が読めるようになってきたぞ！' },
-      { level: 3, icon: '🐔', title: 'にわとり', desc: 'コケコッコー！朝から晩まで漢字のことで頭がいっぱい（？）' },
-      { level: 4, icon: '🥉', title: 'ブロンズ', desc: '硬い決意のブロンズ！漢字の基本の型はバッチリだ。' },
-      { level: 5, icon: '🥈', title: 'シルバー', desc: 'いぶし銀の輝き。少し難しい漢字の読み書きもいける口。' },
-      { level: 6, icon: '🥇', title: 'ゴールド', desc: 'ピカピカのゴールド！クラスでも一目置かれる漢字マスター候補。' },
-      { level: 7, icon: '🏅', title: 'プラチナ', desc: '希少価値高め。プラチナ級の実力で、大人の書く字もスラスラ読める！' },
-      { level: 8, icon: '💎', title: 'ダイヤ', desc: '誰にも砕けない最強の頭脳。もはや漢字辞典とはマブダチだ。' },
-      { level: 9, icon: '🌟', title: 'マスター', desc: '漢字の真髄を極めし者。これ以上の壁はないと思いきや…？' },
-      { level: 10, icon: '👑', title: '伝説の漢字王', desc: 'すべての漢字を支配する生きた伝説。国語辞典に君の名前が載る日も近い…！' }
-    ];
-
-    const overallRanks = [
-      { rank: 0, title: '見習い', icon: '🌱', color: '#a0aec0', desc: 'まずはここから。漢字の世界へようこそ！' },
-      { rank: 1, title: '初級マスター', icon: '🥉', color: '#4da6ff', desc: '基礎は身についてきたぞ。この調子！' },
-      { rank: 2, title: '中級マスター', icon: '🥈', color: '#4ddb7a', desc: '学年の半分を制覇！もう立派な漢字使い。' },
-      { rank: 3, title: '上級マスター', icon: '🥇', color: '#fbbf24', desc: 'ほとんどの漢字を網羅。達人は目前！' },
-      { rank: 4, title: '伝説の漢字王', icon: '👑', color: '#ff6b6b', desc: 'すべての漢字を完全制覇！君こそが真の漢字王だ！' }
-    ];
 
     grid.innerHTML = gradeInfo.map((info, i) => {
       const kanjiList = getKanjiByGrade(info.grade);
@@ -160,39 +213,9 @@ const App = {
       else if (combinedPercent >= 50) currentRankIndex = 2;
       else if (combinedPercent >= 25) currentRankIndex = 1;
 
-      const currentRank = overallRanks[currentRankIndex];
-
-      // 過去のレベルとの比較
-      const rKey = 'gradeStage_R_' + info.grade;
-      const wKey = 'gradeStage_W_' + info.grade;
-      const oKey = 'gradeStage_O_' + info.grade;
-      
-      const prevRead = Storage.getSetting(rKey) || 0;
-      const prevWrite = Storage.getSetting(wKey) || 0;
-      const prevOverall = Storage.getSetting(oKey) || 0;
-
-      let levelUpType = null;
-      let alertData = null;
-
-      // 優先順位: 全体ランクUP > 読みレベルUP > 書きレベルUP  (同時に複数上がった場合は1つ表示)
-      if (currentRankIndex > prevOverall) {
-        levelUpType = 'overall';
-        alertData = { gradeName: info.label, type: 'overall', stageData: currentRank, current: currentRankIndex };
-      } else if (readLevel > prevRead) {
-        levelUpType = 'read';
-        alertData = { gradeName: info.label, type: 'read', stageData: stages[readLevel], current: readLevel };
-      } else if (writeLevel > prevWrite) {
-        levelUpType = 'write';
-        alertData = { gradeName: info.label, type: 'write', stageData: stages[writeLevel], current: writeLevel };
-      }
-
-      if (levelUpType) {
-         levelUpAlerts.push(alertData);
-      }
-      
-      if (currentRankIndex > prevOverall) Storage.setSetting(oKey, currentRankIndex);
-      if (readLevel > prevRead) Storage.setSetting(rKey, readLevel);
-      if (writeLevel > prevWrite) Storage.setSetting(wKey, writeLevel);
+      const currentRank = this.overallRanks[currentRankIndex];
+      const rStage = this.stages[readLevel];
+      const wStage = this.stages[writeLevel];
 
       let readBlocksHtml = '';
       let writeBlocksHtml = '';
@@ -200,9 +223,6 @@ const App = {
         readBlocksHtml += `<div class="stage-block ${j < readLevel ? 'filled' : ''}"></div>`;
         writeBlocksHtml += `<div class="stage-block ${j < writeLevel ? 'filled' : ''}"></div>`;
       }
-
-      const rStage = stages[readLevel];
-      const wStage = stages[writeLevel];
 
       return `
         <div class="grade-card" data-grade="${info.grade}" onclick="App.selectGrade(${info.grade})">
@@ -246,12 +266,6 @@ const App = {
         </div>
       `;
     }).join('');
-
-    if (levelUpAlerts.length > 0) {
-      setTimeout(() => {
-        this.showLevelUpModal(levelUpAlerts[0]);
-      }, 300);
-    }
   },
 
   showLevelUpModal(alertData) {
@@ -361,29 +375,7 @@ const App = {
     const old = document.getElementById('rank-info-overlay');
     if (old) old.remove();
 
-    const stages = [
-      { level: 0, icon: '🥚', title: 'たまご', desc: 'まだ殻の中。漢字の世界っておいしいのかな？' },
-      { level: 1, icon: '🐣', title: 'ひよこ', desc: 'ピヨピヨ！はじめての漢字に興味津々で目が離せない。' },
-      { level: 2, icon: '🐥', title: 'わかどり', desc: '羽ばたく準備中。少しずつ漢字が読めるようになってきたぞ！' },
-      { level: 3, icon: '🐔', title: 'にわとり', desc: 'コケコッコー！朝から晩まで漢字のことで頭がいっぱい（？）' },
-      { level: 4, icon: '🥉', title: 'ブロンズ', desc: '硬い決意のブロンズ！漢字の基本の型はバッチリだ。' },
-      { level: 5, icon: '🥈', title: 'シルバー', desc: 'いぶし銀の輝き。少し難しい漢字の読み書きもいける口。' },
-      { level: 6, icon: '🥇', title: 'ゴールド', desc: 'ピカピカのゴールド！クラスでも一目置かれる漢字マスター候補。' },
-      { level: 7, icon: '🏅', title: 'プラチナ', desc: '希少価値高め。プラチナ級の実力で、大人の書く字もスラスラ読める！' },
-      { level: 8, icon: '💎', title: 'ダイヤ', desc: '誰にも砕けない最強の頭脳。もはや漢字辞典とはマブダチだ。' },
-      { level: 9, icon: '🌟', title: 'マスター', desc: '漢字の真髄を極めし者。これ以上の壁はないと思いきや…？' },
-      { level: 10, icon: '👑', title: '伝説の漢字王', desc: 'すべての漢字を支配する生きた伝説。国語辞典に君の名前が載る日も近い…！' }
-    ];
-
-    const overallRanks = [
-      { rank: 0, title: '見習い', icon: '🌱', color: '#a0aec0', desc: 'まずはここから。漢字の世界へようこそ！' },
-      { rank: 1, title: '初級マスター', icon: '🥉', color: '#4da6ff', desc: '基礎は身についてきたぞ。この調子！' },
-      { rank: 2, title: '中級マスター', icon: '🥈', color: '#4ddb7a', desc: '学年の半分を制覇！もう立派な漢字使い。' },
-      { rank: 3, title: '上級マスター', icon: '🥇', color: '#fbbf24', desc: 'ほとんどの漢字を網羅。達人は目前！' },
-      { rank: 4, title: '伝説の漢字王', icon: '👑', color: '#ff6b6b', desc: 'すべての漢字を完全制覇！君こそが真の漢字王だ！' }
-    ];
-
-    const overallHtml = overallRanks.map(r => `
+    const overallHtml = this.overallRanks.map(r => `
       <div class="rank-item" style="border-left: 4px solid ${r.color};">
         <div class="rank-item-icon">${r.icon}</div>
         <div class="rank-item-info">
@@ -393,7 +385,7 @@ const App = {
       </div>
     `).join('');
 
-    const stagesHtml = stages.map(s => `
+    const stagesHtml = this.stages.map(s => `
       <div class="rank-item">
         <div class="rank-item-icon">${s.icon}</div>
         <div class="rank-item-info">
@@ -559,6 +551,14 @@ const App = {
 
     this.updateBackButton();
     window.scrollTo(0, 0);
+
+    const grade = this.currentGrade || result.grade || 1;
+    const levelUpData = this.checkLevelUp(grade);
+    if (levelUpData) {
+      setTimeout(() => {
+        this.showLevelUpModal(levelUpData);
+      }, 500);
+    }
   },
 
   retryTest(mode) {
