@@ -1,4 +1,4 @@
-const KANJI_GRADE1_DATA = {
+﻿const KANJI_GRADE1_DATA = {
   "一": {
     on: ["イチ", "イツ"], kun: ["ひと"], radical: "一",
     etymology: "一本の横線で、ひとつの数を表した指事文字。",
@@ -204,10 +204,13 @@ const KANJI_GRADE1_DATA = {
     examples: [{ reading: "シュ", text: "歌手（かしゅ）のうた" }, { reading: "て", text: "手をあらう" }]
   },
   "十": {
-    on: ["ジュウ", "ジッ", "ジュッ"], kun: ["とお", "と"], radical: "十",
+    on: ["ジュウ"], kun: ["とお"], radical: "十",
     etymology: "すべての数がそろうことを一本の縦線と横線の交差で表した。",
     hint: "たてとよこのまっすぐな棒のクロスだね。",
-    examples: [{ reading: "ジュウ", text: "十円（じゅうえん）をもらう" }, { reading: "とお", text: "十こかう" }]
+    examples: [
+        { reading: "ジュウ", text: "十円をもらう" },
+        { reading: "とお", text: "十日かかる" }
+      ]
   },
   "出": {
     on: ["シュツ", "シュッ"], kun: ["で", "だ"], radical: "凵",

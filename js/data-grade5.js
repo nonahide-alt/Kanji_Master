@@ -1,4 +1,4 @@
-const KANJI_GRADE5_DATA = {
+﻿const KANJI_GRADE5_DATA = {
   "久": {
     on: ["キュウ", "ク"], kun: ["ひさ.しい"], radical: "丿",
     etymology: "人が後ろから引っ張られて進めない姿を描いた象形文字。時間が長く続く「ひさしい」ことを表す。",
@@ -270,10 +270,13 @@ const KANJI_GRADE5_DATA = {
     examples: [{ reading: "アツ", text: "血圧（けつあつ）を測る" }, { reading: "アツ", text: "水圧（すいあつ）にたえる" }]
   },
   "在": {
-    on: ["ザイ"], kun: ["あ.る"], radical: "土",
+    on: ["ザイ"], kun: ["あ"], radical: "土",
     etymology: "才（草の芽）と土を合わせた字。土の中から草が芽を出すように、「そこにある」ことを表す。",
     hint: "ナの下に土を書く。",
-    examples: [{ reading: "ザイ", text: "現在（げんざい）の時刻" }, { reading: "あ", text: "神は在（あ）る" }]
+    examples: [
+        { reading: "ザイ", text: "現在の時刻" },
+        { reading: "あ", text: "お金の在りか" }
+      ]
   },
   "夢": {
     on: ["ム"], kun: ["ゆめ"], radical: "夕",
@@ -444,10 +447,13 @@ const KANJI_GRADE5_DATA = {
     examples: [{ reading: "ギ", text: "正義（せいぎ）の味方" }, { reading: "ギ", text: "義務（ぎむ）を果たす" }]
   },
   "過": {
-    on: ["カ"], kun: ["す.ぎる", "す.ごす", "あやま.つ", "あやま.ち"], radical: "辶",
+    on: ["カ"], kun: ["す"], radical: "辶",
     etymology: "咼（まるくかける）としんにょうを合わせた字。通りすぎる、または「やりすぎる・あやまち」を表す。",
     hint: "咼（内、口）にしんにょうを書く。",
-    examples: [{ reading: "カ", text: "過去（かこ）の出来事" }, { reading: "す", text: "通り過ぎ（す）ぎる" }]
+    examples: [
+        { reading: "カ", text: "過去の出来事" },
+        { reading: "す", text: "通り過ぎる" }
+      ]
   },
   "価": {
     on: ["カ"], kun: ["あたい"], radical: "人",
@@ -933,7 +939,10 @@ const KANJI_GRADE5_DATA = {
     on: ["オウ"], kun: ["さくら"], radical: "木",
     etymology: "木と嬰（かかえる・首飾り）を合わせた字（旧字は櫻）。赤く小さな実をもつ「さくら」の木を表す。",
     hint: "きへんにツとワかんむりと女を書く。",
-    examples: [{ reading: "オウ", text: "桜前線（おうぜんせん）" }, { reading: "さくら", text: "桜（さくら）の花" }]
+    examples: [
+        { reading: "オウ", text: "桜花爛漫のころ" },
+        { reading: "さくら", text: "桜の花" }
+      ]
   },
   "永": {
     on: ["エイ"], kun: ["なが.い"], radical: "水",

@@ -1,4 +1,4 @@
-const KANJI_GRADE2_DATA = {
+﻿const KANJI_GRADE2_DATA = {
   "刀": {
     on: ["トウ"], kun: ["かたな"], radical: "刀",
     etymology: "刃のついた武器の形を表した象形文字。",
@@ -834,10 +834,13 @@ const KANJI_GRADE2_DATA = {
     examples: [{ reading: "ドク", text: "読書がすき" }, { reading: "よ", text: "本を読む" }]
   },
   "新": {
-    on: ["シン"], kun: ["あたら", "あら", "にい"], radical: "斤",
+    on: ["シン"], kun: ["あたら"], radical: "斤",
     etymology: "立と木が新しい芽を出し、斤（おの）で切り開く形。",
     hint: "立と木の右に斤を書く。",
-    examples: [{ reading: "シン", text: "新しい年がはじまる" }, { reading: "あたら", text: "新しいくつをはく" }]
+    examples: [
+        { reading: "シン", text: "しんねんがはじまる" },
+        { reading: "あたら", text: "新しいくつをはく" }
+      ]
   },
   "合": {
     on: ["ゴウ", "ガッ", "カッ"], kun: ["あ"], radical: "口",
@@ -862,5 +865,150 @@ const KANJI_GRADE2_DATA = {
     etymology: "禾（のぎ・穀物）と火を合わせて、収穫の時期である「あき」を表す。",
     hint: "のぎへんに火を書く。",
     examples: [{ reading: "シュウ", text: "秋分（しゅうぶん）の日" }, { reading: "あき", text: "秋がくる" }]
+  },
+  "寺": {
+    on: [],
+    kun: ["てら"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "てら", text: "寺に泊まる" }
+      ]
+  },
+  "岩": {
+    on: [],
+    kun: ["いわ"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "いわ", text: "岩は固い" }
+      ]
+  },
+  "帰": {
+    on: [],
+    kun: ["かえる", "かえす"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "かえる", text: "家に帰る" },
+        { reading: "かえす", text: "自宅に帰す" }
+      ]
+  },
+  "春": {
+    on: [],
+    kun: ["はる"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "はる", text: "春の日はあたたかい" }
+      ]
+  },
+  "昼": {
+    on: [],
+    kun: ["ひる"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "ひる", text: "昼飯を食べる" }
+      ]
+  },
+  "晴": {
+    on: [],
+    kun: ["ばれ"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "ばれ", text: "今日は晴れた" }
+      ]
+  },
+  "計": {
+    on: [],
+    kun: ["はかる"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "はかる", text: "水量を計る" }
+      ]
+  },
+  "園": {
+    on: [],
+    kun: ["ぞの"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "ぞの", text: "秘密の花園" }
+      ]
+  },
+  "書": {
+    on: [],
+    kun: ["かく", "がき"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "かく", text: "漢字を書く" },
+        { reading: "がき", text: "落書き禁止" }
+      ]
+  },
+  "遠": {
+    on: [],
+    kun: ["とおい"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "とおい", text: "遠い未来" }
+      ]
+  },
+  "門": {
+    on: ["もん"],
+    kun: ["かど", "と"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "かど", text: "門出を祝う" },
+        { reading: "と", text: "鳴門海峡" },
+        { reading: "もん", text: "正門から入場する" }
+      ]
+  },
+  "原": {
+    on: [],
+    kun: ["はら"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "はら", text: "野原で遊ぶ" }
+      ]
+  },
+  "細": {
+    on: [],
+    kun: ["ほそ", "こまか"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "ほそ", text: "細い道" },
+        { reading: "こまか", text: "細かい作業" }
+      ]
+  },
+  "弓": {
+    on: [],
+    kun: ["ゆみ"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "ゆみ", text: "弓矢を引く" }
+      ]
   }
 };

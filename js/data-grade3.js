@@ -1,4 +1,4 @@
-const KANJI_GRADE3_DATA = {
+﻿const KANJI_GRADE3_DATA = {
   "丁": {
     on: ["チョウ", "テイ"], kun: [], radical: "一",
     etymology: "釘（くぎ）の頭の形を表した象形文字。",
@@ -234,16 +234,21 @@ const KANJI_GRADE3_DATA = {
     examples: [{ reading: "モン", text: "問題（もんだい）をとく" }, { reading: "と", text: "先生に問う" }]
   },
   "坂": {
-    on: ["ハン"], kun: ["さか"], radical: "土",
+    on: [], kun: ["さか"], radical: "土",
     etymology: "土へんに反（そり返る）で、傾いた「さか」を表す。",
     hint: "つちへんに反を書く。",
-    examples: [{ reading: "ハン", text: "急な坂道をのぼる" }, { reading: "さか", text: "上り坂" }]
+    examples: [
+        { reading: "さか", text: "坂道をのぼる" }
+      ]
   },
   "悪": {
-    on: ["アク", "オ"], kun: ["わる"], radical: "心",
+    on: ["アク"], kun: ["わる"], radical: "心",
     etymology: "亜（ゆがむ）と心で、心の状態が悪いことを表す。",
     hint: "亜の下に心を書く。",
-    examples: [{ reading: "アク", text: "悪口をいう" }, { reading: "わる", text: "悪い人" }]
+    examples: [
+        { reading: "アク", text: "悪魔がやってきた" },
+        { reading: "わる", text: "悪い人" }
+      ]
   },
   "暗": {
     on: ["アン"], kun: ["くら"], radical: "日",
@@ -645,7 +650,10 @@ const KANJI_GRADE3_DATA = {
     on: ["ショ"], kun: ["ところ"], radical: "戸",
     etymology: "戸とおので、ドアの「ところ（場所）」を表す。",
     hint: "戸の右に斤を書く。",
-    examples: [{ reading: "ショ", text: "近所（きんじょ）のひと" }, { reading: "ところ", text: "安全や所" }]
+    examples: [
+        { reading: "ショ", text: "近所のひと" },
+        { reading: "ところ", text: "安全な所" }
+      ]
   },
   "暑": {
     on: ["ショ"], kun: ["あつ"], radical: "日",
@@ -924,10 +932,13 @@ const KANJI_GRADE3_DATA = {
     examples: [{ reading: "トウ", text: "登場（とうじょう）する" }, { reading: "のぼ", text: "山に登（のぼ）る" }]
   },
   "等": {
-    on: ["トウ"], kun: ["ひと"], radical: "竹",
+    on: ["どう"], kun: ["ひと"], radical: "竹",
     etymology: "竹と寺で、竹のふだをそろえる「ひとしい」意味。",
     hint: "たけかんむりに寺を書く。",
-    examples: [{ reading: "トウ", text: "平等（びょうどう）" }, { reading: "ひと", text: "長さが等しい" }]
+    examples: [
+        { reading: "どう", text: "平等" },
+        { reading: "ひと", text: "長さが等しい" }
+      ]
   },
   "童": {
     on: ["ドウ"], kun: ["わらべ"], radical: "立",
@@ -1095,7 +1106,10 @@ const KANJI_GRADE3_DATA = {
     on: ["ヤク"], kun: ["くすり"], radical: "艹",
     etymology: "草かんむりと楽で、病気を治して楽にする「くすり」。",
     hint: "くさかんむりに楽を書く。",
-    examples: [{ reading: "ヤク", text: "薬局（やっきょく）" }, { reading: "くすり", text: "薬をのむ" }]
+    examples: [
+        { reading: "ヤク", text: "薬剤師" },
+        { reading: "くすり", text: "薬をのむ" }
+      ]
   },
   "由": {
     on: ["ユウ", "ユ", "ユイ"], kun: ["よし"], radical: "田",
@@ -1192,5 +1206,15 @@ const KANJI_GRADE3_DATA = {
     etymology: "足と各（すすむ）で、人が歩いていく「みち」。",
     hint: "あしへんに各を書く。",
     examples: [{ reading: "ロ", text: "道路（どうろ）をあるく" }, { reading: "じ", text: "帰り路（じ）" }]
+  },
+  "研": {
+    on: [],
+    kun: ["とぐ"],
+    etymology: "データなし",
+    hint: "（自動生成データのためヒントなし）",
+    radicals: [],
+    examples: [
+        { reading: "とぐ", text: "包丁を研ぐ" }
+      ]
   }
 };

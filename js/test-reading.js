@@ -118,9 +118,14 @@ const TestReading = {
           </div>`;
       } else if (this.isAnswerShown && !this.answered) {
         const answerDisplay = q.targetReading;
+        const plainText = q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '$1');
+        const fullHiragana = (typeof HIRAGANA_DATA !== 'undefined' && HIRAGANA_DATA[plainText]) ? HIRAGANA_DATA[plainText] : '';
+        const hiraganaSection = fullHiragana ? `<div style="margin-bottom: 20px; font-size: 0.95rem; background: var(--bg-card); border: 1px solid var(--border-glass); padding: 10px; border-radius: 6px; display: inline-block; color: var(--text-primary);">💡 全文ひらがな: <span style="font-weight: bold; color: var(--accent-cyan);">${fullHiragana}</span></div>` : '';
+
         actionHtml = `
           <div style="margin: 20px 0; font-size: 1rem; color: var(--text-secondary);">正解の${typeLabel}は</div>
-          <div style="font-size: 2.2rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 20px;">${answerDisplay}</div>
+          <div style="font-size: 2.2rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 10px;">${answerDisplay}</div>
+          ${hiraganaSection}
           <div style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary);">正しく答えられましたか？</div>
           <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
             <button class="btn btn-danger" style="padding: 15px 30px; font-size: 1.1rem; flex: 1; max-width: 200px;" onclick="TestReading.submitSelfReport(false)">
@@ -255,11 +260,16 @@ const TestReading = {
     const feedbackDiv = document.getElementById('test-feedback');
     const typeLabel = q.readingType === 'onyomi' ? '音読み' : '訓読み';
 
+    const plainText = q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '$1');
+    const fullHiragana = (typeof HIRAGANA_DATA !== 'undefined' && HIRAGANA_DATA[plainText]) ? HIRAGANA_DATA[plainText] : '';
+    const hiraganaHtml = fullHiragana ? `<div style="margin-top: 10px; font-size: 0.95rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px; border-radius: 6px; color: var(--text-primary);">💡 全文ひらがな: <strong style="color: var(--text-primary);">${fullHiragana}</strong></div>` : '';
+
     if (correct) {
       feedbackDiv.innerHTML = `
         <div class="test-feedback correct">
           <span class="test-feedback-icon">⭕</span>
           正解！ 「${q.char}」の${typeLabel}は「${matchedReading}」です。
+          ${hiraganaHtml}
         </div>
       `;
     } else {
@@ -268,6 +278,7 @@ const TestReading = {
           <span class="test-feedback-icon">❌</span>
           不正解。正しい答えは「${q.targetReading}」です。
           <br>あなたの回答：「${userAnswer}」
+          ${hiraganaHtml}
         </div>
       `;
     }

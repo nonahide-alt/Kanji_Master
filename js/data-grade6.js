@@ -1,4 +1,4 @@
-const KANJI_GRADE6_DATA = {
+﻿const KANJI_GRADE6_DATA = {
   "泉": {
     on: ["セン"], kun: ["いずみ"], radical: "水",
     etymology: "水が白く湧き出る様子を描いた象形文字。「いずみ」を表す。",
@@ -75,7 +75,9 @@ const KANJI_GRADE6_DATA = {
     on: ["ケイ"], kun: [], radical: "言",
     etymology: "敬（つつしむ）と言（言葉）を合わせた字。言葉で注意して「いましめる」ことを表す。",
     hint: "敬の下に言を書く。",
-    examples: [{ reading: "ケイ", text: "警察（けいさつ）官" }, { reading: "ケイ", text: "警告（けいこく）する" }]
+    examples: [
+        { reading: "ケイ", text: "警告する" }
+      ]
   },
   "座": {
     on: ["ザ"], kun: ["すわ.る"], radical: "广",
@@ -114,10 +116,13 @@ const KANJI_GRADE6_DATA = {
     examples: [{ reading: "マイ", text: "画用紙を一枚（いちまい）" }]
   },
   "若": {
-    on: ["ジャク", "ニャク"], kun: ["わか.い", "も.しくわ"], radical: "艹",
+    on: ["じゃっ"], kun: ["わか"], radical: "艹",
     etymology: "くさかんむりと右（手を出す）を合わせた字（元々は巫女が両手としなやかな草をあげる形）。しなやかで「わかい」ことを表す。",
     hint: "くさかんむりの下に右を書く。",
-    examples: [{ reading: "ジャク", text: "若干（じゃっかん）名" }, { reading: "わか", text: "若（わか）い人" }]
+    examples: [
+        { reading: "じゃっ", text: "若干名" },
+        { reading: "わか", text: "若い人" }
+      ]
   },
   "詞": {
     on: ["シ"], kun: [], radical: "言",
@@ -675,7 +680,9 @@ const KANJI_GRADE6_DATA = {
     on: ["セン"], kun: [], radical: "宀",
     etymology: "うかんむり（立派な建物）と亘（まわる・めぐる）を合わせた字。王様の言葉をあちこちに「のべる・知らせる」ことを表す。",
     hint: "うかんむりの下に一、日のような形、一を書く。",
-    examples: [{ reading: "セン", text: "宣言（せんげん）する" }, { reading: "セン", text: "宣伝（せんでん）カー" }]
+    examples: [
+        { reading: "セン", text: "宣言する" }
+      ]
   },
   "尊": {
     on: ["ソン"], kun: ["とうと.い", "たっと.い", "とうと.ぶ", "たっと.ぶ"], radical: "寸",
@@ -981,7 +988,9 @@ const KANJI_GRADE6_DATA = {
     on: ["コウ"], kun: [], radical: "子",
     etymology: "老（お年寄り）と子（子ども）を合わせた字。子どもがお年寄りを助ける「おやこうこう」を表す。",
     hint: "老の上半分（土とノ）の下に子を書く。",
-    examples: [{ reading: "コウ", text: "親孝行（おやこうこう）" }, { reading: "コウ", text: "親不孝（おやふこう）" }]
+    examples: [
+        { reading: "コウ", text: "親孝行" }
+      ]
   },
   "樹": {
     on: ["ジュ"], kun: ["き"], radical: "木",
@@ -1074,10 +1083,12 @@ const KANJI_GRADE6_DATA = {
     examples: [{ reading: "コク", text: "穀物（こくもつ）を育てる" }, { reading: "コク", text: "五穀（ごこく）豊穣" }]
   },
   "絹": {
-    on: ["ケン"], kun: ["きぬ"], radical: "糸",
+    on: [], kun: ["きぬ"], radical: "糸",
     etymology: "糸と肙（小さな虫・まるい）を合わせた字。カイコからとれたまるくてきれいな「きぬ」を表す。",
     hint: "いとへんに口、その下に月を書く。",
-    examples: [{ reading: "ケン", text: "絹糸（けんし）を使う" }, { reading: "きぬ", text: "絹（きぬ）のハンカチ" }]
+    examples: [
+        { reading: "きぬ", text: "絹のハンカチ" }
+      ]
   },
   "蚕": {
     on: ["サン"], kun: ["かいこ"], radical: "虫",

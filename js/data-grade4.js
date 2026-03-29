@@ -1,4 +1,4 @@
-const KANJI_GRADE4_DATA = {
+﻿const KANJI_GRADE4_DATA = {
   "愛": {
     on: ["アイ"], kun: [], radical: "心",
     etymology: "後ろを振り返る人と心で、後をひく「いとしい」気持ちを表す。",
@@ -48,10 +48,12 @@ const KANJI_GRADE4_DATA = {
     examples: [{ reading: "イン", text: "印刷（いんさつ）する" }, { reading: "しるし", text: "印（しるし）をつける" }]
   },
   "英": {
-    on: ["エイ"], kun: ["はな"], radical: "艹",
+    on: ["エイ"], kun: [], radical: "艹",
     etymology: "草かんむりと央（真ん中）で、草花の中央にある「はな」や「すぐれた人」。",
     hint: "くさかんむりに央を書く。",
-    examples: [{ reading: "エイ", text: "英語（えいご）をはなす" }, { reading: "はな", text: "英（はな）がさく" }]
+    examples: [
+        { reading: "エイ", text: "英語をはなす" }
+      ]
   },
   "栄": {
     on: ["エイ"], kun: ["さか", "は"], radical: "木",
@@ -533,10 +535,13 @@ const KANJI_GRADE4_DATA = {
     examples: [{ reading: "シツ", text: "失敗（しっぱい）する" }, { reading: "うしな", text: "やる気を失う" }]
   },
   "借": {
-    on: ["シャク"], kun: ["か"], radical: "人",
+    on: ["しゃっ"], kun: ["か"], radical: "人",
     etymology: "にんべんに昔（かわいた肉）で、昔のものをおいて物を「かりる」。",
     hint: "にんべんに昔を書く。",
-    examples: [{ reading: "シャク", text: "借金（しゃっきん）" }, { reading: "か", text: "本を借りる" }]
+    examples: [
+        { reading: "しゃっ", text: "借金" },
+        { reading: "か", text: "本を借りる" }
+      ]
   },
   "種": {
     on: ["シュ"], kun: ["たね"], radical: "禾",
@@ -676,10 +681,12 @@ const KANJI_GRADE4_DATA = {
     examples: [{ reading: "セツ", text: "説明（せつめい）する" }, { reading: "と", text: "教えを説く" }]
   },
   "浅": {
-    on: ["セン"], kun: ["あさ"], radical: "氵",
+    on: [], kun: ["あさ"], radical: "氵",
     etymology: "水と戔（少なくする）で、水が少ない「あさい」場所。",
     hint: "さんずいに戈を二つ重ねたような戔を書く。",
-    examples: [{ reading: "セン", text: "浅海（せんかい）" }, { reading: "あさ", text: "川が浅い" }]
+    examples: [
+        { reading: "あさ", text: "川が浅い" }
+      ]
   },
   "戦": {
     on: ["セン"], kun: ["たたか", "いくさ"], radical: "戈",
@@ -751,7 +758,11 @@ const KANJI_GRADE4_DATA = {
     on: ["タイ"], kun: ["おび", "お"], radical: "巾",
     etymology: "布を腰に巻きつける形から「おび・おびる」。",
     hint: "十を三つ並べたような形の下にワかんむりと巾。",
-    examples: [{ reading: "タイ", text: "温帯（おんたい）気候" }, { reading: "おび", text: "着物の帯" }, { reading: "お", text: "熱をおびる" }]
+    examples: [
+        { reading: "タイ", text: "温帯気候" },
+        { reading: "おび", text: "着物の帯" },
+        { reading: "お", text: "熱を帯びる" }
+      ]
   },
   "隊": {
     on: ["タイ"], kun: [], radical: "阝",
@@ -907,7 +918,10 @@ const KANJI_GRADE4_DATA = {
     on: ["バイ"], kun: ["うめ"], radical: "木",
     etymology: "木と毎（子どもを産む）で、たくさんの実をつける「うめ」の木。",
     hint: "きへんに毎を書く。",
-    examples: [{ reading: "バイ", text: "梅雨（ばいう）" }, { reading: "うめ", text: "梅の花がさく" }]
+    examples: [
+        { reading: "バイ", text: "梅雨前線" },
+        { reading: "うめ", text: "梅の花がさく" }
+      ]
   },
   "博": {
     on: ["ハク", "バク"], kun: [], radical: "十",
