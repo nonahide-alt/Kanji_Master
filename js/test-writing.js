@@ -166,7 +166,7 @@ const TestWriting = {
         </div>
         ${hiraganaSection}
         <div style="font-size: 18px; margin-bottom: 20px; color: var(--text-primary); margin-top: 15px;">
-          この漢字、正しく書けましたか？
+          書き順などの手順も含めて、正しく書けましたか？
         </div>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
           <button class="btn btn-danger" style="padding: 15px 30px; font-size: 1.1rem; flex: 1; max-width: 200px;" onclick="TestWriting.submitSelfReport(false)">
