@@ -132,10 +132,12 @@ const App = {
         break;
       case 'test-reading':
         document.getElementById('test-screen').classList.add('active');
+        this.isReviewTest = false;
         TestReading.start(this.currentGrade);
         break;
       case 'test-writing':
         document.getElementById('test-screen').classList.add('active');
+        this.isReviewTest = false;
         TestWriting.start(this.currentGrade);
         break;
       case 'result':
@@ -581,6 +583,11 @@ const App = {
   },
 
   retryTest(mode) {
+    // 要復習テスト中なら要復習テストを再開
+    if (this.isReviewTest) {
+      this.startReviewTest();
+      return;
+    }
     if (mode === 'reading') {
       this.showScreen('test-reading');
       TestReading.start(this.currentGrade);
@@ -602,6 +609,7 @@ const App = {
   },
 
   startReviewTest() {
+    this.isReviewTest = true;
     // 現在の学年で実際に「要復習」ステータスの漢字を取得
     const kanjiList = getKanjiByGrade(this.currentGrade);
     let reviewKanji = [];
