@@ -19,9 +19,14 @@
 
   <div id="app">
     <header id="app-header">
-      <button id="back-btn" class="header-btn" onclick="App.goBack()" style="visibility: hidden;">
-        <span class="btn-icon">←</span> 戻る
-      </button>
+      <div class="header-nav-group">
+        <button id="back-btn" class="header-btn" onclick="App.goBack()" style="visibility: hidden;">
+          <span class="btn-icon">←</span> 戻る
+        </button>
+        <button id="home-btn" class="header-btn" onclick="App.showHome()" style="visibility: hidden;">
+          <span class="btn-icon">🏠</span> ホーム
+        </button>
+      </div>
       <h1 id="app-title" onclick="App.showHome()">
         <span class="title-icon">漢</span>漢字マスター
       </h1>
@@ -36,8 +41,11 @@
     <main id="main-content">
       <!-- ホーム画面 -->
       <section id="home-screen" class="screen active">
-        <div class="hero">
-          <p class="hero-subtitle">学年を選んで漢字を学ぼう！</p>
+        <div class="hero" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;">
+          <p class="hero-subtitle" style="margin-bottom: 0;">学年を選んで漢字を学ぼう！</p>
+          <button class="btn btn-secondary rank-info-btn" onclick="App.showRankInfo()" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">
+            🏆 称号一覧
+          </button>
         </div>
         <div id="grade-grid" class="grade-grid"></div>
       </section>

@@ -215,6 +215,12 @@ body {
   font-size: 1rem;
 }
 
+.header-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ======================== 画面表示切り替え ======================== */
 .screen {
   display: none;
@@ -301,6 +307,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 4px;
   margin-bottom: 12px;
 }
 
@@ -1252,6 +1260,64 @@ body {
   transform: translateX(22px);
 }
 
+/* ======================== 設定 - データ管理 ======================== */
+.settings-data-section {
+  padding: 16px 0 8px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.settings-data-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-data-btn {
+  flex: 1;
+  padding: 10px 14px !important;
+  font-size: 0.85rem !important;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-family);
+  text-align: center;
+}
+
+.settings-export-btn {
+  background: rgba(124, 108, 240, 0.12) !important;
+  border: 1px solid rgba(124, 108, 240, 0.4) !important;
+  color: var(--accent-purple-light) !important;
+}
+
+.settings-export-btn:hover {
+  background: rgba(124, 108, 240, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.settings-import-btn {
+  background: rgba(56, 178, 255, 0.12) !important;
+  border: 1px solid rgba(56, 178, 255, 0.4) !important;
+  color: #38b2ff !important;
+}
+
+.settings-import-btn:hover {
+  background: rgba(56, 178, 255, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.settings-status {
+  margin-top: 10px;
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.settings-import-confirm {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  text-align: center;
+}
+
 .btn-success {
   background: rgba(77, 219, 122, 0.15);
   border: 1px solid var(--status-green);
@@ -1539,3 +1605,239 @@ body.tablet-mode .error-item-char {
   }
 }
 
+/* ======================== 新プログレス（ステージ表示） ======================== */
+.stage-container {
+  margin-top: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  border: 1px solid var(--border-glass);
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  margin-bottom: 8px;
+}
+
+.stage-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stage-icon {
+  font-size: 1.4rem;
+}
+
+.stage-percent {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stage-blocks {
+  display: flex;
+  gap: 4px;
+  height: 12px;
+  margin-bottom: 4px;
+}
+
+.stage-block {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  transition: all var(--transition-normal);
+}
+
+.stage-block.filled {
+  background: var(--accent-gradient);
+  box-shadow: 0 0 8px rgba(124, 108, 240, 0.4);
+}
+
+.grade-card[data-grade="1"] .stage-block.filled { background: var(--grade-1); box-shadow: 0 0 8px rgba(255, 107, 157, 0.4); }
+.grade-card[data-grade="2"] .stage-block.filled { background: var(--grade-2); box-shadow: 0 0 8px rgba(255, 138, 76, 0.4); }
+.grade-card[data-grade="3"] .stage-block.filled { background: var(--grade-3); box-shadow: 0 0 8px rgba(255, 216, 77, 0.4); }
+.grade-card[data-grade="4"] .stage-block.filled { background: var(--grade-4); box-shadow: 0 0 8px rgba(77, 219, 122, 0.4); }
+.grade-card[data-grade="5"] .stage-block.filled { background: var(--grade-5); box-shadow: 0 0 8px rgba(77, 166, 255, 0.4); }
+.grade-card[data-grade="6"] .stage-block.filled { background: var(--grade-6); box-shadow: 0 0 8px rgba(157, 143, 248, 0.4); }
+
+.stage-breakdown {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ======================== レベルアップモーダル ======================== */
+.level-up-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  animation: fadeInOverlay 0.5s forwards;
+}
+
+.level-up-modal {
+  background: rgba(20, 20, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2);
+  transform: scale(0.8) translateY(20px);
+  animation: popUpModal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
+  overflow: visible;
+}
+
+.level-up-modal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255,215,0,0.1) 90deg, transparent 180deg, rgba(255,215,0,0.1) 270deg, transparent 360deg);
+  animation: rotateLight 10s linear infinite;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.level-up-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(to right, #ffdf00, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+.level-up-icon {
+  font-size: 5rem;
+  margin-bottom: 16px;
+  display: inline-block;
+  animation: bounceIcon 1.5s infinite;
+}
+
+.level-up-stage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.level-up-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+@keyframes fadeInOverlay {
+  to { opacity: 1; }
+}
+
+@keyframes popUpModal {
+  to {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes rotateLight {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounceIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* 祝砲用の紙吹雪キャンバス */
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+/* ======================== 称号一覧モーダル ======================== */
+.rank-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-purple) var(--bg-card);
+}
+
+.rank-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.rank-list-scroll::-webkit-scrollbar-track {
+  background: var(--bg-card);
+  border-radius: 4px;
+}
+.rank-list-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--accent-purple);
+  border-radius: 4px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all var(--transition-fast);
+}
+
+.rank-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-purple-light);
+  transform: translateY(-2px);
+}
+
+.rank-item-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  width: 50px;
+  text-align: center;
+}
+
+.rank-item-info {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.rank-item-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rank-item-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
