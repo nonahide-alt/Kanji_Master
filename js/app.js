@@ -132,13 +132,17 @@ const App = {
         break;
       case 'test-reading':
         document.getElementById('test-screen').classList.add('active');
-        this.isReviewTest = false;
-        TestReading.start(this.currentGrade);
+        if (params !== 'retry' && params !== 'review') {
+          this.isReviewTest = false;
+          TestReading.start(this.currentGrade);
+        }
         break;
       case 'test-writing':
         document.getElementById('test-screen').classList.add('active');
-        this.isReviewTest = false;
-        TestWriting.start(this.currentGrade);
+        if (params !== 'retry' && params !== 'review') {
+          this.isReviewTest = false;
+          TestWriting.start(this.currentGrade);
+        }
         break;
       case 'result':
         document.getElementById('result-screen').classList.add('active');
@@ -589,21 +593,19 @@ const App = {
       return;
     }
     if (mode === 'reading') {
-      this.showScreen('test-reading');
-      TestReading.start(this.currentGrade);
+      this.showScreen('test-reading'); // 通常テストの再開はそのまま
     } else {
       this.showScreen('test-writing');
-      TestWriting.start(this.currentGrade);
     }
   },
 
   retryFailedTest(mode) {
     if (!this.lastFailedQuestions || this.lastFailedQuestions.length === 0) return;
     if (mode === 'reading') {
-      this.showScreen('test-reading');
+      this.showScreen('test-reading', 'retry');
       TestReading.startRetry(this.lastFailedQuestions, this.currentGrade);
     } else {
-      this.showScreen('test-writing');
+      this.showScreen('test-writing', 'retry');
       TestWriting.startRetry(this.lastFailedQuestions, this.currentGrade);
     }
   },
@@ -650,7 +652,7 @@ const App = {
     const count = Math.min(5, reviewKanji.length);
     const shuffled = reviewKanji.sort(() => 0.5 - Math.random()).slice(0, count);
 
-    this.showScreen('test-reading');
+    this.showScreen('test-reading', 'review');
     
     // startRetry用のダミー回答オブジェクトを作成（実際のエラー読みを使用）
     const dummyFailed = shuffled.map(item => {
