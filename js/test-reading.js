@@ -147,12 +147,13 @@ const TestReading = {
     // 復習進捗バッジ（要復習の読みの場合のみ表示）
     let reviewStreakHtml = '';
     const status = Storage.getKanjiStatus(q.char, 'reading');
-    if (status.color === 'red' && status.reviewStreaks) {
+    const showReviewBadge = App.isReviewTest || (status.color === 'red' && status.reviewStreaks);
+    if (showReviewBadge && status.reviewStreaks) {
       const streakInfo = status.reviewStreaks[q.targetReading];
       if (streakInfo && streakInfo.hasError && streakInfo.streak >= status.masteryStreak) {
         reviewStreakHtml = `<div style="text-align:center;margin-top:10px;"><span style="font-size:0.8rem;padding:4px 12px;border-radius:8px;background:rgba(77,219,122,0.12);color:var(--status-green);border:1px solid rgba(77,219,122,0.25);">✅ 復習マスター達成!</span></div>`;
-      } else {
-        const streak = streakInfo ? streakInfo.streak : 0;
+      } else if (streakInfo && streakInfo.hasError) {
+        const streak = streakInfo.streak;
         reviewStreakHtml = `<div style="text-align:center;margin-top:10px;"><span style="font-size:0.8rem;padding:4px 12px;border-radius:8px;background:rgba(255,107,107,0.12);color:var(--status-red);border:1px solid rgba(255,107,107,0.25);">🔄 復習進捗: 連続正解 ${streak}/${status.masteryStreak}回</span></div>`;
       }
     }
