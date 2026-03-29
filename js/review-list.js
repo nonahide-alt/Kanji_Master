@@ -1,5 +1,5 @@
 // =============================================================
-// 漢字マスター - 要復習一覧画面
+// 漢字マスター - 弱点一覧画面
 // =============================================================
 
 const ReviewList = {
@@ -9,7 +9,7 @@ const ReviewList = {
     this.currentGrade = grade;
     const container = document.getElementById('review-list-content');
     
-    // 現在の学年で「要復習」ステータスの漢字を取得
+    // 現在の学年で「弱点」ステータスの漢字を取得
     const kanjiList = getKanjiByGrade(this.currentGrade);
     let reviewKanjiReading = [];
     let reviewKanjiWriting = [];
@@ -51,7 +51,7 @@ const ReviewList = {
       container.innerHTML = `
         <div style="text-align: center; padding: 40px 20px;">
           <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
-          <h3 style="margin-bottom: 12px; color: var(--text-primary);">要復習の漢字はありません！</h3>
+          <h3 style="margin-bottom: 12px; color: var(--text-primary);">弱点の漢字はありません！</h3>
           <p style="color: var(--text-secondary); margin-bottom: 30px;">${this.currentGrade}年生の漢字、よくできています！</p>
           <button class="btn btn-secondary" onclick="App.goBack()">戻る</button>
         </div>
@@ -60,7 +60,7 @@ const ReviewList = {
     }
 
     const renderKanjiGrid = (list, modeIcon) => {
-      if (list.length === 0) return '<div style="color: var(--text-secondary); margin-bottom: 20px;">このモードの要復習漢字はありません。</div>';
+      if (list.length === 0) return '<div style="color: var(--text-secondary); margin-bottom: 20px;">このモードの弱点漢字はありません。</div>';
       
       return `
         <div class="kanji-grid" style="margin-bottom: 24px;">
@@ -78,7 +78,7 @@ const ReviewList = {
 
     container.innerHTML = `
       <div style="text-align: center; margin-bottom: 24px;">
-        <h2 style="margin-bottom: 8px;">要復習リスト（${this.currentGrade}年生）</h2>
+        <h2 style="margin-bottom: 8px;">弱点リスト（${this.currentGrade}年生）</h2>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
           連続${reviewKanjiReading[0]?.masteryStreak || 3}回正解でマスターに昇格します！
         </p>

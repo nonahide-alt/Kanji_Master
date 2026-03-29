@@ -156,7 +156,7 @@ const Storage = {
       }
     });
 
-    // 要復習の判定: 間違いがあり、まだ3回連続正解していない読みがあれば要復習
+    // 弱点の判定: 間違いがあり、まだ3回連続正解していない読みがあれば弱点
     let hasUnresolvedError = false;
     Object.values(readingStreaks).forEach(info => {
       if (info.hasError && info.streak < MASTERY_STREAK) {
@@ -167,7 +167,7 @@ const Storage = {
     let color, label;
     if (hasUnresolvedError) {
       color = "red";
-      label = "要復習";
+      label = "弱点";
     } else if (filledStars === totalStars) {
       color = "blue";
       label = "マスター";

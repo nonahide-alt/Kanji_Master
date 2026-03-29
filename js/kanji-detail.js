@@ -85,7 +85,7 @@ const KanjiDetail = {
           const rIcon = isReadMastered ? `<span class="star-filled${rRedClass}">★</span>` : '<span class="star-empty">☆</span>';
           const wIcon = isWriteMastered ? `<span class="star-filled${wRedClass}">★</span>` : '<span class="star-empty">☆</span>';
           
-          // 連続正解カウント表示（要復習の読みのみ）
+          // 連続正解カウント表示（弱点の読みのみ）
           const rStreakInfo = statusReading.reviewStreaks[sen.targetReading];
           let rStreakHtml = '';
           if (rStreakInfo && rStreakInfo.hasError && rStreakInfo.streak < statusReading.masteryStreak) {
@@ -131,10 +131,10 @@ const KanjiDetail = {
     const hex = char.charCodeAt(0).toString(16).padStart(5, '0');
     const svgUrl = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/${hex}.svg`;
 
-    // 要復習時の「3回連続正解でマスター」説明
+    // 弱点時の「3回連続正解でマスター」説明
     let reviewHintHtml = '';
     if (isReadReview || isWriteReview) {
-      reviewHintHtml = `<div style="text-align:center;margin-top:8px;font-size:0.75rem;color:var(--text-secondary);background:rgba(255,107,107,0.08);padding:6px 12px;border-radius:8px;border:1px solid rgba(255,107,107,0.15);">💡 要復習の読みは、連続3回正解するとマスターに昇格します</div>`;
+      reviewHintHtml = `<div style="text-align:center;margin-top:8px;font-size:0.75rem;color:var(--text-secondary);background:rgba(255,107,107,0.08);padding:6px 12px;border-radius:8px;border:1px solid rgba(255,107,107,0.15);">💡 弱点の読みは、連続3回正解するとマスターに昇格します</div>`;
     }
 
     container.innerHTML = `

@@ -6,6 +6,8 @@ const App = {
   currentScreen: 'home',
   currentGrade: null,
   history: [], // 画面遷移履歴（戻るボタン用）
+  isReviewTest: false,
+  isRetentionTest: false,
 
   stages: [
     { level: 0, icon: '🥚', title: 'たまご', desc: 'まだ殻の中。漢字の世界っておいしいのかな？' },
@@ -132,15 +134,17 @@ const App = {
         break;
       case 'test-reading':
         document.getElementById('test-screen').classList.add('active');
-        if (params !== 'retry' && params !== 'review') {
+        if (params !== 'retry' && params !== 'review' && params !== 'retention') {
           this.isReviewTest = false;
+          this.isRetentionTest = false;
           TestReading.start(this.currentGrade);
         }
         break;
       case 'test-writing':
         document.getElementById('test-screen').classList.add('active');
-        if (params !== 'retry' && params !== 'review') {
+        if (params !== 'retry' && params !== 'review' && params !== 'retention') {
           this.isReviewTest = false;
+          this.isRetentionTest = false;
           TestWriting.start(this.currentGrade);
         }
         break;
@@ -154,6 +158,10 @@ const App = {
       case 'review-list':
         document.getElementById('review-list-screen').classList.add('active');
         ReviewList.render(this.currentGrade);
+        break;
+      case 'retention-list':
+        document.getElementById('retention-list-screen').classList.add('active');
+        RetentionList.render(this.currentGrade);
         break;
     }
 
@@ -174,6 +182,8 @@ const App = {
   showHome() {
     this.history = [];
     this.currentGrade = null;
+    this.isReviewTest = false;
+    this.isRetentionTest = false;
     this.showScreen('home');
   },
 
@@ -454,10 +464,16 @@ const App = {
     }
   },
 
-  // ======================== 要復習リスト ========================
+  // ======================== 弱点リスト ========================
 
   showReviewList() {
     this.navigate('review-list');
+  },
+
+  // ======================== 記憶定着リスト ========================
+
+  showRetentionList() {
+    this.navigate('retention-list');
   },
 
   // ======================== テスト結果 ========================
@@ -587,9 +603,14 @@ const App = {
   },
 
   retryTest(mode) {
-    // 要復習テスト中なら要復習テストを再開
+    // 弱点克服テスト中なら弱点克服テストを再開
     if (this.isReviewTest) {
       this.startReviewTest();
+      return;
+    }
+    // 記憶定着テスト中なら記憶定着テストを再開
+    if (this.isRetentionTest) {
+      this.startRetentionTest(mode);
       return;
     }
     if (mode === 'reading') {
@@ -612,14 +633,14 @@ const App = {
 
   startReviewTest() {
     this.isReviewTest = true;
-    // 現在の学年で実際に「要復習」ステータスの漢字を取得
+    // 現在の学年で実際に「弱点」ステータスの漢字を取得
     const kanjiList = getKanjiByGrade(this.currentGrade);
     let reviewKanji = [];
     
     kanjiList.forEach(k => {
       const rs = Storage.getKanjiStatus(k.char, 'reading');
       if (rs.color === 'red' && rs.reviewStreaks) {
-        // 要復習の読みごとに問題を作成
+        // 弱点の読みごとに問題を作成
         Object.entries(rs.reviewStreaks).forEach(([reading, info]) => {
           if (info.hasError && info.streak < rs.masteryStreak) {
             // この読みに対応する例文を探す
@@ -644,7 +665,7 @@ const App = {
     });
 
     if (reviewKanji.length === 0) {
-      alert(`${this.currentGrade}年生で要復習の漢字はありません！\n素晴らしいです！`);
+      alert(`${this.currentGrade}年生で弱点の漢字はありません！\n素晴らしいです！`);
       return;
     }
 
@@ -664,6 +685,46 @@ const App = {
     });
     
     TestReading.startRetry(dummyFailed, this.currentGrade);
+  },
+
+  startRetentionTest(mode) {
+    this.isRetentionTest = true;
+    
+    // 現在の学年で、指定モードの schedule === 'overdue' を取得
+    const schedules = Storage.getReviewSchedule(mode);
+    const overdueSchedules = [];
+    schedules.filter(s => s.grade === this.currentGrade).forEach(s => {
+      if (s.reviews.some(r => r.status === 'overdue')) {
+        overdueSchedules.push(s);
+      }
+    });
+
+    if (overdueSchedules.length === 0) {
+      alert(`${this.currentGrade}年生で復習が必要な問題はありません！\\n素晴らしいです！`);
+      return;
+    }
+
+    // ランダムに5個まで選ぶ
+    const count = Math.min(5, overdueSchedules.length);
+    const shuffled = overdueSchedules.sort(() => 0.5 - Math.random()).slice(0, count);
+
+    // startRetry用のダミー回答オブジェクトを作成
+    const dummyFailed = shuffled.map(item => {
+      return {
+        char: item.char,
+        readingType: item.readingType,
+        correctAnswer: item.targetReading, // 読みテストならcorrectAnswerが見られる、書きテストでもダミーとして入れておく
+        targetReading: item.targetReading
+      };
+    });
+    
+    if (mode === 'reading') {
+      this.showScreen('test-reading', 'retention');
+      TestReading.startRetry(dummyFailed, this.currentGrade);
+    } else {
+      this.showScreen('test-writing', 'retention');
+      TestWriting.startRetry(dummyFailed, this.currentGrade);
+    }
   },
 
   // ======================== 設定 ========================

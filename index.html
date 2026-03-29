@@ -73,15 +73,25 @@
           </button>
           <button class="menu-card" onclick="App.showReviewList()" id="menu-review-btn">
             <div class="menu-card-icon">🔥</div>
-            <div class="menu-card-title">要復習テスト</div>
+            <div class="menu-card-title">弱点克服テスト</div>
             <div class="menu-card-desc">間違えた問題に再挑戦</div>
+          </button>
+          <button class="menu-card" onclick="App.showRetentionList()" id="menu-retention-btn">
+            <div class="menu-card-icon">🧠</div>
+            <div class="menu-card-title">記憶定着テスト</div>
+            <div class="menu-card-desc">忘却曲線に合わせて復習</div>
           </button>
         </div>
       </section>
 
-      <!-- 要復習リスト画面 -->
+      <!-- 弱点リスト画面 -->
       <section id="review-list-screen" class="screen">
         <div id="review-list-content"></div>
+      </section>
+
+      <!-- 記憶定着リスト画面 -->
+      <section id="retention-list-screen" class="screen">
+        <div id="retention-list-content"></div>
       </section>
 
       <!-- 漢字一覧画面 -->
@@ -91,7 +101,7 @@
           <div class="legend-item"><span class="legend-dot legend-blue"></span>マスター</div>
           <div class="legend-item"><span class="legend-dot legend-green"></span>学習中</div>
           <div class="legend-item"><span class="legend-dot legend-gray"></span>未学習</div>
-          <div class="legend-item"><span class="legend-dot legend-red"></span>要復習</div>
+          <div class="legend-item"><span class="legend-dot legend-red"></span>弱点</div>
         </div>
         <div id="kanji-grid" class="kanji-grid"></div>
       </section>
@@ -134,6 +144,7 @@
   <script src="js/test-reading.js"></script>
   <script src="js/test-writing.js"></script>
   <script src="js/review-list.js"></script>
+  <script src="js/retention-list.js"></script>
   <script src="js/history.js"></script>
   <script src="js/app.js"></script>
 </body>

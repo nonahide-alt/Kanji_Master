@@ -144,7 +144,7 @@ const TestReading = {
       </div>
     `;
 
-    // 復習進捗バッジ（要復習の読みの場合のみ表示）
+    // 復習進捗バッジ（弱点の読みの場合のみ表示）
     let reviewStreakHtml = '';
     const status = Storage.getKanjiStatus(q.char, 'reading');
     const showReviewBadge = App.isReviewTest || (status.color === 'red' && status.reviewStreaks);
@@ -200,7 +200,7 @@ const TestReading = {
             ${levelHtml}
           </div>
           <div class="test-question-card">
-            <span class="test-mode-label">読みテスト (自己申告) ― ${typeLabel}</span>
+            <span class="test-mode-label">${App.isRetentionTest ? '🧠 記憶定着：' : (App.isReviewTest ? '🔥 弱点克服：' : '')}読みテスト (自己申告) ― ${typeLabel}</span>
             <div class="test-sentence-display">${q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$1</strong></u>')}</div>
             ${reviewStreakHtml}
             <div class="test-action-area" id="test-action-area" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -224,7 +224,7 @@ const TestReading = {
         </div>
 
         <div class="test-question-card">
-          <span class="test-mode-label">読みテスト ― ${typeLabel}</span>
+          <span class="test-mode-label">${App.isRetentionTest ? '🧠 記憶定着：' : (App.isReviewTest ? '🔥 弱点克服：' : '')}読みテスト ― ${typeLabel}</span>
           <div class="test-sentence-display">${q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$1</strong></u>')}</div>
           ${reviewStreakHtml}
           <div class="test-hint">下線部の${typeLabel}をひらがな/カタカナで答えてください</div>

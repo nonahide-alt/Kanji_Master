@@ -190,7 +190,7 @@ const TestWriting = {
         </div>
 
         <div class="test-question-card">
-          <span class="test-mode-label">書きテスト（自己申告）</span>
+          <span class="test-mode-label">${App.isRetentionTest ? '🧠 記憶定着：' : (App.isReviewTest ? '🔥 弱点克服：' : '')}書きテスト（自己申告）</span>
           <div class="test-sentence-display" style="font-size: 28px; line-height: 1.6; margin: 30px 0;">${maskedSentence}</div>
           
           <div class="test-action-area" id="test-action-area" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">

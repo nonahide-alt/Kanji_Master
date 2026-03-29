@@ -370,7 +370,7 @@ const History = {
       switch (status) {
         case 'passed': return '合格';
         case 'failed': return '不合格';
-        case 'overdue': return '要復習';
+        case 'overdue': return '弱点';
         case 'upcoming': return '予定';
         default: return '─';
       }
