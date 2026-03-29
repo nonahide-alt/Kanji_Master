@@ -77,6 +77,36 @@ const TestWriting = {
     const q = this.questions[this.currentIndex];
     const progress = ((this.currentIndex) / this.questions.length * 100);
 
+    // 現在の書きレベル
+    const kanjiList = getKanjiByGrade(this.currentGrade);
+    let writeMastered = 0;
+    kanjiList.forEach(k => {
+      if (Storage.getKanjiStatus(k.char, 'writing').color === 'blue') writeMastered++;
+    });
+    const totalKanji = kanjiList.length;
+    const writePercent = totalKanji > 0 ? Math.floor((writeMastered / totalKanji) * 100) : 0;
+    const nextLevelProgress = (writePercent % 10) * 10;
+
+    const currentWriteLevel = Storage.getSetting('gradeStage_W_' + this.currentGrade) || 0;
+    const stageInfo = App.stages[currentWriteLevel] || App.stages[0];
+    
+    // 次のレベルまでのゲージHTML
+    const gaugeHtml = currentWriteLevel < 10 ? `
+      <div style="width: 40px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-left: 4px; position: relative;">
+        <div style="width: ${nextLevelProgress}%; height: 100%; background: var(--status-green); position: absolute; top:0; left:0; border-radius: 3px;"></div>
+      </div>
+    ` : `
+      <div style="margin-left: 4px; font-size: 0.7rem; color: var(--status-green); font-weight: bold;">MAX</div>
+    `;
+
+    const levelHtml = `
+      <div class="test-progress-level" style="margin-left: 16px; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 1.1rem;">${stageInfo.icon}</span>
+        <span>✏️ Lv.${currentWriteLevel}</span>
+        ${gaugeHtml}
+      </div>
+    `;
+
     // 例文中の読み部分を下線太字で表示する（書きテスト）
     const maskedSentence = q.text.replace(/\[([^/]+)\/([^\]]+)\]/g, '<u><strong>$2</strong></u>');
 
@@ -134,6 +164,7 @@ const TestWriting = {
           <div class="test-progress-bar">
             <div class="test-progress-fill" style="width: ${progress}%"></div>
           </div>
+          ${levelHtml}
         </div>
 
         <div class="test-question-card">

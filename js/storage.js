@@ -261,19 +261,23 @@ const Storage = {
   // 返すデータ: { char, mode, grade, firstErrorDate, reviews: [{interval, dueDate, status}] }
   getReviewSchedule(mode) {
     const history = this.getHistory();
-    // 漢字ごとの最初の間違い日を特定
-    const errorMap = {}; // key: `${char}_${mode}` => { char, mode, grade, firstErrorDate, allResults: [{date, correct}] }
+    // 問題ごと（漢字+モード+読み種別+対象読み）の最初の間違い日を特定
+    const errorMap = {}; // key: `${char}_${mode}_${readingType}_${targetReading}`
 
     history.forEach(session => {
       if (mode && session.mode !== mode) return;
       session.questions.forEach(q => {
         if (!q.correct) {
-          const key = `${q.char}_${session.mode}`;
+          const targetReading = q.targetReading || q.correctAnswer || '';
+          const readingType = q.readingType || '';
+          const key = `${q.char}_${session.mode}_${readingType}_${targetReading}`;
           if (!errorMap[key]) {
             errorMap[key] = {
               char: q.char,
               mode: session.mode,
               grade: session.grade,
+              readingType: readingType,
+              targetReading: targetReading,
               firstErrorDate: session.date,
               allResults: []
             };
@@ -286,11 +290,13 @@ const Storage = {
       });
     });
 
-    // 各漢字の全結果を時系列で収集
+    // 各問題の全結果を時系列で収集
     history.forEach(session => {
       if (mode && session.mode !== mode) return;
       session.questions.forEach(q => {
-        const key = `${q.char}_${session.mode}`;
+        const targetReading = q.targetReading || q.correctAnswer || '';
+        const readingType = q.readingType || '';
+        const key = `${q.char}_${session.mode}_${readingType}_${targetReading}`;
         if (errorMap[key]) {
           errorMap[key].allResults.push({
             date: session.date,
@@ -338,6 +344,8 @@ const Storage = {
         char: entry.char,
         mode: entry.mode,
         grade: entry.grade,
+        readingType: entry.readingType,
+        targetReading: entry.targetReading,
         firstErrorDate: entry.firstErrorDate,
         reviews: reviews
       });

@@ -175,7 +175,10 @@ const App = {
     const backBtn = document.getElementById('back-btn');
     const homeBtn = document.getElementById('home-btn');
     const isHome = this.currentScreen === 'home';
-    backBtn.style.visibility = isHome ? 'hidden' : 'visible';
+    const isTest = this.currentScreen === 'test-reading' || this.currentScreen === 'test-writing';
+    const isResult = this.currentScreen === 'result';
+    const hideBack = isHome || isTest || isResult;
+    backBtn.style.visibility = hideBack ? 'hidden' : 'visible';
     homeBtn.style.visibility = isHome ? 'hidden' : 'visible';
   },
 
@@ -522,11 +525,29 @@ const App = {
       `;
     }
 
+    // レベルアップ判定を先に実行（localStorageを更新する）
+    const grade = this.currentGrade || result.grade || 1;
+    const levelUpData = this.checkLevelUp(grade);
+
+    // 更新後のレベルを取得して表示
+    const isReading = result.mode === 'reading';
+    const stageKey = isReading ? ('gradeStage_R_' + result.grade) : ('gradeStage_W_' + result.grade);
+    const currentLevel = Storage.getSetting(stageKey) || 0;
+    const stageInfo = App.stages[currentLevel] || App.stages[0];
+    const iconMode = isReading ? '📖' : '✏️';
+
+    const levelBadgeHtml = `
+      <span style="display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); font-weight:bold; color:var(--text-primary);">
+        <span style="font-size:1.1rem;">${stageInfo.icon}</span> ${iconMode} Lv.${currentLevel}
+      </span>
+    `;
+
     container.innerHTML = `
       <div class="result-container">
         <div class="result-score-card">
-          <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px;">
-            ${result.grade}年生 ─ ${modeLabel}
+          <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap: 8px;">
+            ${levelBadgeHtml}
+            <span>${result.grade}年生 ─ ${modeLabel}</span>
           </div>
           <div class="result-score-number">${correctCount} / ${totalCount}</div>
           <div class="result-score-label">${percentage}% 正解</div>
@@ -552,8 +573,6 @@ const App = {
     this.updateBackButton();
     window.scrollTo(0, 0);
 
-    const grade = this.currentGrade || result.grade || 1;
-    const levelUpData = this.checkLevelUp(grade);
     if (levelUpData) {
       setTimeout(() => {
         this.showLevelUpModal(levelUpData);

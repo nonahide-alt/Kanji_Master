@@ -394,12 +394,15 @@ const History = {
         `;
       }).join('');
 
+      const readingTypeLabel = s.readingType === 'onyomi' ? '音読み' : '訓読み';
+
       return `
         <div style="background:var(--card-bg);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border-color);">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
             <span style="font-size:2rem;font-weight:bold;">${s.char}</span>
             <div>
               <div style="font-size:0.85rem;color:var(--text-secondary);">${s.grade}年生</div>
+              <div style="font-size:0.85rem;color:var(--accent-cyan, #00bcd4);">${readingTypeLabel}「${s.targetReading}」</div>
               <div style="font-size:0.75rem;color:#9898b0;">初回間違い: ${s.firstErrorDate}</div>
             </div>
           </div>

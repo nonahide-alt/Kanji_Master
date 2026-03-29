@@ -92,6 +92,36 @@ const TestReading = {
     const progress = ((this.currentIndex) / this.questions.length * 100);
     const typeLabel = q.readingType === 'onyomi' ? '音読み' : '訓読み';
 
+    // 現在の読みレベル
+    const kanjiList = getKanjiByGrade(this.currentGrade);
+    let readMastered = 0;
+    kanjiList.forEach(k => {
+      if (Storage.getKanjiStatus(k.char, 'reading').color === 'blue') readMastered++;
+    });
+    const totalKanji = kanjiList.length;
+    const readPercent = totalKanji > 0 ? Math.floor((readMastered / totalKanji) * 100) : 0;
+    const nextLevelProgress = (readPercent % 10) * 10; // 0 to 90
+
+    const currentReadLevel = Storage.getSetting('gradeStage_R_' + this.currentGrade) || 0;
+    const stageInfo = App.stages[currentReadLevel] || App.stages[0];
+    
+    // 次のレベルまでのゲージHTML
+    const gaugeHtml = currentReadLevel < 10 ? `
+      <div style="width: 40px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-left: 4px; position: relative;">
+        <div style="width: ${nextLevelProgress}%; height: 100%; background: var(--status-green); position: absolute; top:0; left:0; border-radius: 3px;"></div>
+      </div>
+    ` : `
+      <div style="margin-left: 4px; font-size: 0.7rem; color: var(--status-green); font-weight: bold;">MAX</div>
+    `;
+
+    const levelHtml = `
+      <div class="test-progress-level" style="margin-left: 16px; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 1.1rem;">${stageInfo.icon}</span>
+        <span>📖 Lv.${currentReadLevel}</span>
+        ${gaugeHtml}
+      </div>
+    `;
+
     // 復習進捗バッジ（要復習の読みの場合のみ表示）
     let reviewStreakHtml = '';
     const status = Storage.getKanjiStatus(q.char, 'reading');
@@ -144,6 +174,7 @@ const TestReading = {
             <div class="test-progress-bar">
               <div class="test-progress-fill" style="width: ${progress}%"></div>
             </div>
+            ${levelHtml}
           </div>
           <div class="test-question-card">
             <span class="test-mode-label">読みテスト (自己申告) ― ${typeLabel}</span>
@@ -166,6 +197,7 @@ const TestReading = {
           <div class="test-progress-bar">
             <div class="test-progress-fill" style="width: ${progress}%"></div>
           </div>
+          ${levelHtml}
         </div>
 
         <div class="test-question-card">
