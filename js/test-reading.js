@@ -59,8 +59,30 @@ const TestReading = {
 
   generateQuestions(grade, count = 5) {
     const kanjiList = getKanjiByGrade(grade);
-    const shuffled = this.shuffle([...kanjiList]);
-    const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+    
+    // マスターしていない漢字（優先）とマスター済みの漢字に分ける
+    const unmastered = [];
+    const mastered = [];
+    kanjiList.forEach(k => {
+      if (Storage.getKanjiStatus(k.char, 'reading').color === 'blue') {
+        mastered.push(k);
+      } else {
+        unmastered.push(k);
+      }
+    });
+
+    this.shuffle(unmastered);
+    this.shuffle(mastered);
+
+    let selected = [];
+    if (unmastered.length >= count) {
+      selected = unmastered.slice(0, count);
+    } else {
+      selected = [...unmastered, ...mastered.slice(0, count - unmastered.length)];
+    }
+    
+    // 抽出された問題をさらにシャッフルして出題順をランダムにする
+    this.shuffle(selected);
 
     return selected.map(k => {
       // 例文が自動生成されている場合はそれを使う。ない場合はフォールバック
