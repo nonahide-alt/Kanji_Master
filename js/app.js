@@ -204,6 +204,25 @@ const App = {
     const gradeInfo = getGradeInfo();
     const gradeEmojis = ['🌸', '🌻', '🍀', '⭐', '🌊', '🔥'];
 
+    // ======================== 怪獣出現判定 ========================
+    const globalReviews = Storage.getGlobalReviewItems();
+    const bannerArea = document.getElementById('monster-banner-area');
+    
+    // HP7の怪獣が何体出現するか（7問で1体）
+    const monsterCount = Math.floor(globalReviews.length / 7);
+
+    if (monsterCount > 0) {
+      bannerArea.innerHTML = `
+        <div class="monster-banner" onclick="App.startMonsterTest()">
+          <div class="monster-banner-title">🚨 怪獣 ${monsterCount}体 出現中！！ 🚨</div>
+          <div class="monster-banner-subtitle">復習問題が${globalReviews.length}問たまっています。タップして討伐（テスト）へ！</div>
+        </div>
+      `;
+    } else {
+      bannerArea.innerHTML = '';
+    }
+    // ==============================================================
+
     grid.innerHTML = gradeInfo.map((info, i) => {
       const kanjiList = getKanjiByGrade(info.grade);
       let readMastered = 0;
@@ -442,6 +461,93 @@ const App = {
     });
   },
 
+  // ======================== 怪獣図鑑（討伐履歴） ========================
+  showMonsterHistory() {
+    const old = document.getElementById('monster-history-overlay');
+    if (old) old.remove();
+
+    const historyData = Storage.getMonsterHistory(); // { monsterId: defeatCount }
+    const allMonsters = Storage.MONSTER_DATA;
+    let totalDefeats = 0;
+
+    const cardsHtml = allMonsters.map(m => {
+      const isDefeated = historyData[m.id] > 0;
+      const count = historyData[m.id] || 0;
+      totalDefeats += count;
+      
+      if (isDefeated) {
+        return `
+          <div class="monster-dict-card">
+            <div class="monster-dict-icon">${m.icon}</div>
+            <div class="monster-dict-info">
+              <div class="monster-dict-name">${m.name}</div>
+              <div class="monster-dict-count">討伐数：${count}体</div>
+              <div class="monster-dict-desc">${m.desc}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="monster-dict-card undiscovered">
+            <div class="monster-dict-icon">❓</div>
+            <div class="monster-dict-info">
+              <div class="monster-dict-name">（未発見の怪獣）</div>
+              <div class="monster-dict-count">討伐数：0体</div>
+              <div class="monster-dict-desc">どんなヤツか、まだわからない…。</div>
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'monster-history-overlay';
+    overlay.className = 'confirm-overlay';
+    
+    overlay.innerHTML = `
+      <div class="confirm-dialog" style="max-width: 700px; width: 95%; max-height: 85vh; display: flex; flex-direction: column; background: #1a1a2e; border: 1px solid var(--accent-purple);">
+        <div class="confirm-title" style="flex-shrink: 0; padding-bottom: 12px; border-bottom: 1px solid var(--border-glass); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 1.3rem; color: var(--status-red);">👾 討伐図鑑</span>
+          <span style="font-size: 0.9rem; font-weight: normal; color: var(--status-yellow);">総討伐数：${totalDefeats}体</span>
+        </div>
+        
+        <div class="rank-list-scroll monster-dictionary-grid" style="overflow-y: auto; flex-grow: 1; padding-bottom: 20px;">
+          ${cardsHtml}
+        </div>
+        
+        <div class="confirm-buttons" style="flex-shrink: 0; padding-top: 16px; border-top: 1px solid var(--border-glass);">
+          <button class="btn btn-primary" onclick="document.getElementById('monster-history-overlay').remove()">閉じる</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
+  },
+
+  startMonsterTest() {
+    const globalReviews = Storage.getGlobalReviewItems();
+    if (globalReviews.length < 7) {
+      alert("怪獣を出現させるだけの復習問題（7問）が溜まっていません！\\n少し待つか、各学年の問題をテストして弱点を見つけてね。");
+      return;
+    }
+
+    // 7個だけ取り出す
+    const questionsForBattle = globalReviews.slice(0, 7);
+    
+    // UIを切り替える準備
+    this.history.push({ screen: this.currentScreen, grade: this.currentGrade });
+    this.currentScreen = 'test-monster';
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('test-screen').classList.add('active'); // コンテナは同じ test-screen を用いる
+    
+    // test-monster.js を起動
+    TestMonster.start(questionsForBattle);
+    this.updateBackButton();
+  },
+
   // ======================== 学年メニュー ========================
 
   selectGrade(grade) {
@@ -453,6 +559,61 @@ const App = {
     const title = document.getElementById('grade-menu-title');
     const gradeEmojis = ['🌸', '🌻', '🍀', '⭐', '🌊', '🔥'];
     title.textContent = `${gradeEmojis[this.currentGrade - 1]} ${this.currentGrade}年生`;
+
+    // ========== 弱点克服カウント ==========
+    const kanjiList = getKanjiByGrade(this.currentGrade);
+    let reviewCount = 0;
+    kanjiList.forEach(k => {
+      let isWeak = false;
+      ['reading', 'writing'].forEach(mode => {
+        const rs = Storage.getKanjiStatus(k.char, mode);
+        if (rs.color === 'red' && rs.reviewStreaks) {
+          Object.values(rs.reviewStreaks).forEach(info => {
+            if (info.hasError && info.streak < rs.masteryStreak) {
+              isWeak = true;
+            }
+          });
+        }
+      });
+      if (isWeak) reviewCount++;
+    });
+
+    const reviewBtn = document.getElementById('menu-review-btn');
+    const reviewBadge = document.getElementById('menu-review-badge');
+    if (reviewBtn && reviewBadge) {
+      if (reviewCount > 0) {
+        reviewBadge.innerHTML = `対象あり: ${reviewCount}字`;
+        reviewBadge.style.display = 'block';
+        reviewBtn.classList.add('has-target');
+      } else {
+        reviewBadge.style.display = 'none';
+        reviewBtn.classList.remove('has-target');
+      }
+    }
+
+    // ========== 記憶定着対象カウント ==========
+    let retentionCount = 0;
+    ['reading', 'writing'].forEach(mode => {
+      const schedules = Storage.getReviewSchedule(mode);
+      schedules.filter(s => s.grade === this.currentGrade).forEach(s => {
+        if (s.reviews.some(r => r.status === 'overdue')) {
+          retentionCount++;
+        }
+      });
+    });
+
+    const retentionBtn = document.getElementById('menu-retention-btn');
+    const retentionBadge = document.getElementById('menu-retention-badge');
+    if (retentionBtn && retentionBadge) {
+      if (retentionCount > 0) {
+        retentionBadge.innerHTML = `対象あり: ${retentionCount}問`;
+        retentionBadge.style.display = 'block';
+        retentionBtn.classList.add('has-target');
+      } else {
+        retentionBadge.style.display = 'none';
+        retentionBtn.classList.remove('has-target');
+      }
+    }
   },
 
   // ======================== 漢字詳細 ========================
@@ -553,14 +714,32 @@ const App = {
 
     // 更新後のレベルを取得して表示
     const isReading = result.mode === 'reading';
-    const stageKey = isReading ? ('gradeStage_R_' + result.grade) : ('gradeStage_W_' + result.grade);
+    const kanjiList = getKanjiByGrade(grade);
+    let masteredCount = 0;
+    kanjiList.forEach(k => {
+      if (Storage.getKanjiStatus(k.char, result.mode).color === 'blue') masteredCount++;
+    });
+    const totalKanji = kanjiList.length;
+    const modePercent = totalKanji > 0 ? Math.floor((masteredCount / totalKanji) * 100) : 0;
+    const nextLevelProgress = (modePercent % 10) * 10;
+
+    const stageKey = isReading ? ('gradeStage_R_' + grade) : ('gradeStage_W_' + grade);
     const currentLevel = Storage.getSetting(stageKey) || 0;
     const stageInfo = App.stages[currentLevel] || App.stages[0];
     const iconMode = isReading ? '📖' : '✏️';
 
+    const gaugeHtml = currentLevel < 10 ? `
+      <div style="width: 40px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-left: 4px; position: relative;" title="次のレベルまであと${100 - nextLevelProgress}%">
+        <div style="width: ${nextLevelProgress}%; height: 100%; background: var(--status-green); position: absolute; top:0; left:0; border-radius: 3px;"></div>
+      </div>
+    ` : `
+      <div style="margin-left: 4px; font-size: 0.7rem; color: var(--status-green); font-weight: bold;">MAX</div>
+    `;
+
     const levelBadgeHtml = `
       <span style="display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); font-weight:bold; color:var(--text-primary);">
         <span style="font-size:1.1rem;">${stageInfo.icon}</span> ${iconMode} Lv.${currentLevel}
+        ${gaugeHtml}
       </span>
     `;
 

@@ -43,10 +43,16 @@
       <section id="home-screen" class="screen active">
         <div class="hero" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;">
           <p class="hero-subtitle" style="margin-bottom: 0;">学年を選んで漢字を学ぼう！</p>
-          <button class="btn btn-secondary rank-info-btn" onclick="App.showRankInfo()" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">
-            🏆 称号一覧
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary rank-info-btn" onclick="App.showRankInfo()" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">
+              🏆 称号一覧
+            </button>
+            <button class="btn btn-secondary monster-history-btn" onclick="App.showMonsterHistory()" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 20px; border-color: var(--status-red); color: var(--status-red); background: rgba(255,107,107,0.1);">
+              👾 討伐図鑑
+            </button>
+          </div>
         </div>
+        <div id="monster-banner-area"></div>
         <div id="grade-grid" class="grade-grid"></div>
       </section>
 
@@ -71,15 +77,17 @@
             <div class="menu-card-title">書きテスト</div>
             <div class="menu-card-desc">読みから漢字を書こう</div>
           </button>
-          <button class="menu-card" onclick="App.showReviewList()" id="menu-review-btn">
-            <div class="menu-card-icon">🔥</div>
+          <button class="menu-card" onclick="App.showReviewList()" id="menu-review-btn" style="position: relative;">
+            <div class="menu-card-icon"><span class="icon-text">🔥</span></div>
             <div class="menu-card-title">弱点克服テスト</div>
             <div class="menu-card-desc">間違えた問題に再挑戦</div>
+            <div class="menu-card-badge" id="menu-review-badge" style="display: none;"></div>
           </button>
-          <button class="menu-card" onclick="App.showRetentionList()" id="menu-retention-btn">
-            <div class="menu-card-icon">🧠</div>
+          <button class="menu-card" onclick="App.showRetentionList()" id="menu-retention-btn" style="position: relative;">
+            <div class="menu-card-icon"><span class="icon-text">🧠</span></div>
             <div class="menu-card-title">記憶定着テスト</div>
             <div class="menu-card-desc">忘却曲線に合わせて復習</div>
+            <div class="menu-card-badge" id="menu-retention-badge" style="display: none;"></div>
           </button>
         </div>
       </section>
@@ -143,6 +151,7 @@
   <script src="js/kanji-detail.js"></script>
   <script src="js/test-reading.js"></script>
   <script src="js/test-writing.js"></script>
+  <script src="js/test-monster.js"></script>
   <script src="js/review-list.js"></script>
   <script src="js/retention-list.js"></script>
   <script src="js/history.js"></script>

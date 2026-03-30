@@ -360,7 +360,6 @@ const History = {
     const statusIcon = (status) => {
       switch (status) {
         case 'passed': return '✅';
-        case 'failed': return '❌';
         case 'overdue': return '🔴';
         case 'upcoming': return '⏳';
         default: return '⬜';
@@ -369,7 +368,6 @@ const History = {
     const statusLabel = (status) => {
       switch (status) {
         case 'passed': return '合格';
-        case 'failed': return '不合格';
         case 'overdue': return '弱点';
         case 'upcoming': return '予定';
         default: return '─';
@@ -382,7 +380,6 @@ const History = {
         const label = statusLabel(r.status);
         const bgColor = r.status === 'overdue' ? 'rgba(255,107,107,0.15)' :
                         r.status === 'passed' ? 'rgba(77,219,122,0.15)' :
-                        r.status === 'failed' ? 'rgba(255,107,107,0.1)' :
                         'rgba(255,255,255,0.05)';
         return `
           <div style="text-align:center;padding:8px 4px;background:${bgColor};border-radius:8px;flex:1;min-width:80px;">

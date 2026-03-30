@@ -59,7 +59,7 @@ const Storage = {
   },
 
   // 漢字ごとのステータスを計算（mode: 'reading' | 'writing' | null で絞り込み）
-  getKanjiStatus(kanjiChar, mode) {
+  getKanjiStatus(kanjiChar, mode, historyArg = null) {
     const kanji = getKanjiByChar(kanjiChar);
     if (!kanji) return { color: "gray", stars: [], totalStars: 0, filledStars: 0 };
 
@@ -69,11 +69,14 @@ const Storage = {
     // 星の総数は例文（問題）の数とする（ユーザー指定の「案2」）
     const totalStars = testableSentences.length;
 
-    const history = this.getHistory();
+    const history = historyArg || this.getHistory();
     const kanjiQuestions = [];
     history.forEach(session => {
-      if (mode && session.mode !== mode) return;
+      // monsterモードのセッションは各問題ごとのmodeで判定するためスキップさせない
+      if (mode && session.mode !== mode && session.mode !== 'monster') return;
       session.questions.forEach(q => {
+        // monsterモードの場合は、問題自体のmodeが指定modeに一致するか検証
+        if (session.mode === 'monster' && mode && q.mode !== mode) return;
         if (q.char === kanjiChar) {
           kanjiQuestions.push(q);
         }
@@ -210,7 +213,7 @@ const Storage = {
           errors.push({
             date: session.date,
             grade: session.grade,
-            mode: session.mode,
+            mode: session.mode === 'monster' ? q.mode : session.mode,
             char: q.char,
             targetReading: q.targetReading,
             readingType: q.readingType,
@@ -265,16 +268,18 @@ const Storage = {
     const errorMap = {}; // key: `${char}_${mode}_${readingType}_${targetReading}`
 
     history.forEach(session => {
-      if (mode && session.mode !== mode) return;
+      if (mode && session.mode !== mode && session.mode !== 'monster') return;
       session.questions.forEach(q => {
+        if (session.mode === 'monster' && mode && q.mode !== mode) return;
         if (!q.correct) {
           const targetReading = q.targetReading || q.correctAnswer || '';
           const readingType = q.readingType || '';
-          const key = `${q.char}_${session.mode}_${readingType}_${targetReading}`;
+          const qMode = session.mode === 'monster' ? q.mode : session.mode;
+          const key = `${q.char}_${qMode}_${readingType}_${targetReading}`;
           if (!errorMap[key]) {
             errorMap[key] = {
               char: q.char,
-              mode: session.mode,
+              mode: qMode,
               grade: session.grade,
               readingType: readingType,
               targetReading: targetReading,
@@ -292,11 +297,13 @@ const Storage = {
 
     // 各問題の全結果を時系列で収集
     history.forEach(session => {
-      if (mode && session.mode !== mode) return;
+      if (mode && session.mode !== mode && session.mode !== 'monster') return;
       session.questions.forEach(q => {
+        if (session.mode === 'monster' && mode && q.mode !== mode) return;
         const targetReading = q.targetReading || q.correctAnswer || '';
         const readingType = q.readingType || '';
-        const key = `${q.char}_${session.mode}_${readingType}_${targetReading}`;
+        const qMode = session.mode === 'monster' ? q.mode : session.mode;
+        const key = `${q.char}_${qMode}_${readingType}_${targetReading}`;
         if (errorMap[key]) {
           errorMap[key].allResults.push({
             date: session.date,
@@ -326,8 +333,7 @@ const Storage = {
           if (reviewResults.length === 0) {
             status = 'overdue'; // 期限過ぎたが未復習
           } else {
-            const lastResult = reviewResults[reviewResults.length - 1];
-            status = lastResult.correct ? 'passed' : 'failed';
+            status = 'passed';
           }
         } else {
           status = 'upcoming'; // まだ期限前
@@ -405,5 +411,72 @@ const Storage = {
     }
     settings[key] = value;
     localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settings));
+  },
+
+  // ======================== 怪獣討伐・ゲーミフィケーション ========================
+
+  MONSTER_DATA: [
+    { id: 1, icon: '👹', name: '読み忘れオニ', desc: '漢字の読み方をパクリと食べてしまうオニ。頭のツノは読めない画数でできている。' },
+    { id: 2, icon: '🐉', name: 'カキオトシ竜', desc: '漢字のはねやはらいを吹き飛ばす竜。一番好きな食べ物は「しんにょう」。' },
+    { id: 3, icon: '👻', name: 'ドワスレおばけ', desc: 'テスト中に「あれ、なんだっけ？」と言わせる天才。こいつが近づくと頭が真っ白に。' },
+    { id: 4, icon: '👽', name: 'テンテンスナッチャー', desc: '漢字の濁点「゛」や半濁点「゜」をこっそり盗んで宇宙船の燃料にする宇宙人。' },
+    { id: 5, icon: '🤖', name: 'カクカクゴーレム', desc: '画数が多すぎる激ムズ漢字が固まった怪物。体が重すぎて少し動きが鈍い。' },
+    { id: 6, icon: '🧛‍♂️', name: 'カンジ・ヴァンパイア', desc: '漢字の「へん」と「つくり」を嫌がらせでバラバラに引き離してしまう吸血鬼。' },
+    { id: 7, icon: '🧜‍♀️', name: '送り仮名セイレーン', desc: '美しい歌声で正しい送り仮名を忘れさせ、0点の海に沈めようとする魔物。' },
+    { id: 8, icon: '🧩', name: 'パズルスライム', desc: '似ている漢字（「鳥」と「烏」など）をわざと混ぜてドロドロのパズルにする。' },
+    { id: 9, icon: '👁️', name: 'ミチガエ・サイクロプス', desc: '一ツ目なので、漢字の細かい「点」をどうしても見逃してしまう巨人。' },
+    { id: 10, icon: '🦇', name: 'トメハネ・バット', desc: '漢字のトメ・ハネの場所を、夜中にこっそりかじって丸くしてしまうコウモリ。' },
+    { id: 11, icon: '🦅', name: 'フリガナ・イーグル', desc: '漢字の上に乗っているフリガナをかっさらって飛び去る、意地悪な巨大ワシ。' },
+    { id: 12, icon: '🕸️', name: 'イトヘン・スパイダー', desc: '糸へんの漢字をぐるぐる巻きにして、まったく読めなくしてしまうクモ。' },
+    { id: 13, icon: '🧞', name: '音訓魔人', desc: '音読みと訓読みをランプの中で混ぜてしまい、どっちがどっちか分からなくする。' },
+    { id: 14, icon: '🐻', name: 'カタチワスレ・ベア', desc: '漢字の形を冬眠中に完全に忘れてしまうクマ。春になるといつも泣いている。' },
+    { id: 15, icon: '🧙', name: 'マチガイ・ウィザード', desc: 'まったく別の漢字を無理やり当てはめる魔法「誤字脱字」を使う悪い魔法使い。' }
+  ],
+
+  MONSTER_HISTORY_KEY: 'kanjiMaster_monsterHistory',
+
+  getMonsterHistory() {
+    const data = localStorage.getItem(this.MONSTER_HISTORY_KEY);
+    return data ? JSON.parse(data) : {}; // { monsterId: defeatCount }
+  },
+
+  saveMonsterDefeat(monsterId) {
+    const history = this.getMonsterHistory();
+    if (!history[monsterId]) {
+      history[monsterId] = 0;
+    }
+    history[monsterId]++;
+    localStorage.setItem(this.MONSTER_HISTORY_KEY, JSON.stringify(history));
+  },
+
+  /**
+   * 全学年の「記憶定着（overdue）」の全問題を抽出する（怪獣出現カウント用）
+   */
+  getGlobalReviewItems() {
+    const items = [];
+    const addedKeys = new Set();
+
+    // 記憶定着 (overdue) のみをカウント
+    ['reading', 'writing'].forEach(mode => {
+      const schedules = this.getReviewSchedule(mode);
+      schedules.forEach(s => {
+        if (s.reviews.some(r => r.status === 'overdue')) {
+          const key = `${s.char}_${mode}_${s.readingType}_${s.targetReading}`;
+          if (!addedKeys.has(key)) {
+            addedKeys.add(key);
+            items.push({
+              char: s.char,
+              mode: mode,
+              grade: s.grade,
+              readingType: s.readingType,
+              targetReading: s.targetReading,
+              reason: 'retention'
+            });
+          }
+        }
+      });
+    });
+
+    return items;
   }
 };

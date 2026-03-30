@@ -1,4 +1,4 @@
-﻿const KANJI_GRADE2_DATA = {
+const KANJI_GRADE2_DATA = {
   "刀": {
     on: ["トウ"], kun: ["かたな"], radical: "刀",
     etymology: "刃のついた武器の形を表した象形文字。",
@@ -417,7 +417,7 @@
     on: ["キョウ", "ケイ"], kun: ["みやこ"], radical: "亠",
     etymology: "高い丘の上の建物の形から、みやこを表す。",
     hint: "なべぶたの下に口、小を書く。",
-    examples: [{ reading: "キョウ", text: "東京タワーを見る" }, { reading: "みやこ", text: "京のまちをあるく" }]
+    examples: [{ reading: "キョウ", text: "東京タワーを見る" }]
   },
   "国": {
     on: ["コク"], kun: ["くに"], radical: "囗",

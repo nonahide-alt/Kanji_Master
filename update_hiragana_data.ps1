@@ -3,11 +3,8 @@ param (
     [string]$JsPath = "js\hiragana-data.js"
 )
 try {
-    # Use Default encoding, check first bytes for BOM
-    $bytes = [System.IO.File]::ReadAllBytes((Join-Path (Get-Location) $CsvPath))
-    $enc = if ($bytes[0] -eq 239 -and $bytes[1] -eq 187 -and $bytes[2] -eq 191) { "UTF8" } else { "Default" }
-    
-    $csvData = Import-Csv $CsvPath -Encoding $enc
+    # Use UTF8 encoding
+    $csvData = Import-Csv $CsvPath -Encoding UTF8
     $jsonObj = @{}
     
     foreach ($row in $csvData) {

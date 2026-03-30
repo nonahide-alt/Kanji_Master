@@ -1,4 +1,4 @@
-﻿const KANJI_GRADE6_DATA = {
+const KANJI_GRADE6_DATA = {
   "泉": {
     on: ["セン"], kun: ["いずみ"], radical: "水",
     etymology: "水が白く湧き出る様子を描いた象形文字。「いずみ」を表す。",
@@ -1050,7 +1050,7 @@
     on: ["ハン"], kun: [], radical: "玉",
     etymology: "二つの玉と刀（りっとう）を合わせた字。玉を刀で切り分ける、転じて「グループ・分ける」ことを表す。",
     hint: "王を二つ並べて、その間にノと縦棒の形（りっとうの変形）を書く。",
-    examples: [{ reading: "ハン", text: "掃除の班（はん）" }, { reading: "ハン", text: "班長（はんちょう）になる" }]
+    examples: [{ reading: "ハン", text: "班長（はんちょう）になる" }]
   },
   "陛": {
     on: ["ヘイ"], kun: [], radical: "阝",

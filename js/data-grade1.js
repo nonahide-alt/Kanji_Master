@@ -1,4 +1,4 @@
-﻿const KANJI_GRADE1_DATA = {
+const KANJI_GRADE1_DATA = {
   "一": {
     on: ["イチ", "イツ"], kun: ["ひと"], radical: "一",
     etymology: "一本の横線で、ひとつの数を表した指事文字。",
@@ -429,10 +429,10 @@
     examples: [{ reading: "ヒャク", text: "百円（ひゃくえん）コイン" }]
   },
   "文": {
-    on: ["ブン", "モン"], kun: ["ふみ"], radical: "文",
+    on: ["ブン", "モン"], kun: ["ぶみ"], radical: "文",
     etymology: "人があやとりをしているような、もようの形から「もじ」や「ふみ」を表す。",
     hint: "少し帽子をかぶったような「大」に似ているね、でも一番上は点だよ。",
-    examples: [{ reading: "ブン", text: "作文（さくぶん）を書く" }, { reading: "モン", text: "文句（もんく）を言う" }, { reading: "ふみ", text: "恋文（こいぶみ）" }]
+    examples: [{ reading: "ブン", text: "作文（さくぶん）を書く" }, { reading: "モン", text: "文句（もんく）を言う" }, { reading: "ぶみ", text: "恋文を送る" }]
   },
   "木": {
     on: ["ボク", "モク"], kun: ["き", "こ"], radical: "木",
