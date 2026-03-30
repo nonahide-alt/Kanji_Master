@@ -478,5 +478,114 @@ const Storage = {
     });
 
     return items;
+  },
+
+  // ======================== 孤立履歴データの検出・削除 ========================
+
+  /**
+   * 現在のテストデータに存在しない問題の履歴エントリを検出する
+   * 漢字自体が存在しない場合、または漢字は存在するが該当するtargetReadingの
+   * exampleSentenceが無くなった場合を「孤立」と判定する
+   * @returns {{ orphanedCount: number, affectedSessions: number, details: Array }}
+   */
+  findOrphanedHistoryEntries() {
+    const history = this.getHistory();
+    const details = [];
+    let orphanedCount = 0;
+    let affectedSessions = 0;
+
+    history.forEach(session => {
+      let sessionHasOrphan = false;
+      (session.questions || []).forEach(q => {
+        const kanji = getKanjiByChar(q.char);
+        if (!kanji) {
+          // 漢字そのものがデータに存在しない
+          orphanedCount++;
+          sessionHasOrphan = true;
+          details.push({
+            char: q.char,
+            reason: 'kanji_missing',
+            targetReading: q.targetReading || q.correctAnswer || '',
+            sessionDate: session.date
+          });
+          return;
+        }
+
+        // targetReadingが存在する場合、exampleSentencesに一致するものがあるか確認
+        const targetReading = q.targetReading || q.correctAnswer || q.matchedReading;
+        if (targetReading && kanji.exampleSentences && kanji.exampleSentences.length > 0) {
+          const hasMatchingSentence = kanji.exampleSentences.some(ex => {
+            return compareReadings(ex.targetReading, targetReading);
+          });
+          // readingsにも含まれるか確認
+          const hasMatchingReading = kanji.readings.some(r => {
+            return compareReadings(r.reading, targetReading);
+          });
+          if (!hasMatchingSentence && !hasMatchingReading) {
+            orphanedCount++;
+            sessionHasOrphan = true;
+            details.push({
+              char: q.char,
+              reason: 'reading_missing',
+              targetReading: targetReading,
+              sessionDate: session.date
+            });
+          }
+        }
+      });
+      if (sessionHasOrphan) affectedSessions++;
+    });
+
+    return { orphanedCount, affectedSessions, details };
+  },
+
+  /**
+   * 孤立した履歴エントリを削除する
+   * @returns {{ removedCount: number, removedSessions: number }}
+   */
+  purgeOrphanedHistoryEntries() {
+    const history = this.getHistory();
+    let removedCount = 0;
+    let removedSessions = 0;
+
+    const cleanedHistory = history.map(session => {
+      const originalLen = (session.questions || []).length;
+      const filteredQuestions = (session.questions || []).filter(q => {
+        const kanji = getKanjiByChar(q.char);
+        if (!kanji) {
+          removedCount++;
+          return false;
+        }
+
+        const targetReading = q.targetReading || q.correctAnswer || q.matchedReading;
+        if (targetReading && kanji.exampleSentences && kanji.exampleSentences.length > 0) {
+          const hasMatchingSentence = kanji.exampleSentences.some(ex => {
+            return compareReadings(ex.targetReading, targetReading);
+          });
+          const hasMatchingReading = kanji.readings.some(r => {
+            return compareReadings(r.reading, targetReading);
+          });
+          if (!hasMatchingSentence && !hasMatchingReading) {
+            removedCount++;
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      if (filteredQuestions.length < originalLen) {
+        removedSessions++;
+      }
+
+      return {
+        ...session,
+        questions: filteredQuestions
+      };
+    }).filter(session => session.questions.length > 0);
+
+    localStorage.setItem(this.HISTORY_KEY, JSON.stringify(cleanedHistory));
+
+    return { removedCount, removedSessions };
   }
 };

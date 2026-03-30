@@ -109,7 +109,8 @@ const TestWriting = {
     const writePercent = totalKanji > 0 ? Math.floor((writeMastered / totalKanji) * 100) : 0;
     const nextLevelProgress = (writePercent % 10) * 10;
 
-    const currentWriteLevel = Storage.getSetting('gradeStage_W_' + this.currentGrade) || 0;
+    let currentWriteLevel = Math.floor(writePercent / 10);
+    if (currentWriteLevel > 10) currentWriteLevel = 10;
     const stageInfo = App.stages[currentWriteLevel] || App.stages[0];
     
     // 次のレベルまでのゲージHTML

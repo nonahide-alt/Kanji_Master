@@ -80,9 +80,9 @@ const App = {
       alertData = { gradeName: gradeName, type: 'write', stageData: this.stages[writeLevel], current: writeLevel };
     }
 
-    if (currentRankIndex > prevOverall) Storage.setSetting(oKey, currentRankIndex);
-    if (readLevel > prevRead) Storage.setSetting(rKey, readLevel);
-    if (writeLevel > prevWrite) Storage.setSetting(wKey, writeLevel);
+    if (currentRankIndex !== prevOverall) Storage.setSetting(oKey, currentRankIndex);
+    if (readLevel !== prevRead) Storage.setSetting(rKey, readLevel);
+    if (writeLevel !== prevWrite) Storage.setSetting(wKey, writeLevel);
 
     return alertData;
   },
@@ -723,8 +723,8 @@ const App = {
     const modePercent = totalKanji > 0 ? Math.floor((masteredCount / totalKanji) * 100) : 0;
     const nextLevelProgress = (modePercent % 10) * 10;
 
-    const stageKey = isReading ? ('gradeStage_R_' + grade) : ('gradeStage_W_' + grade);
-    const currentLevel = Storage.getSetting(stageKey) || 0;
+    let currentLevel = Math.floor(modePercent / 10);
+    if (currentLevel > 10) currentLevel = 10;
     const stageInfo = App.stages[currentLevel] || App.stages[0];
     const iconMode = isReading ? '📖' : '✏️';
 
@@ -962,6 +962,19 @@ const App = {
             </div>
             <input type="file" id="csv-import-input" accept=".csv" style="display: none;" onchange="App.handleImportCSV(event)">
             <div id="import-export-status" class="settings-status"></div>
+          </div>
+
+          <div class="settings-data-section" id="settings-cleanup-section">
+            <div style="font-size: 0.95rem; font-weight: 500; margin-bottom: 4px;">🧹 履歴データクリーンアップ</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+              テストデータの更新で表示できなくなった履歴を検出・削除します
+            </div>
+            <div id="cleanup-status" style="margin-bottom: 10px;"></div>
+            <div class="settings-data-buttons">
+              <button class="btn settings-data-btn" style="background: rgba(255, 170, 50, 0.15); border-color: #ffaa32; color: #ffaa32;" onclick="App.scanOrphanedHistory()">
+                🔍 孤立データを検出
+              </button>
+            </div>
           </div>
         </div>
         <div class="confirm-buttons">
@@ -1281,6 +1294,112 @@ const App = {
           statusDiv.style.display = 'none';
         }
       }, 4000);
+    }
+  },
+
+  // ======================== 孤立履歴クリーンアップ ========================
+
+  scanOrphanedHistory() {
+    const result = Storage.findOrphanedHistoryEntries();
+    const statusDiv = document.getElementById('cleanup-status');
+    if (!statusDiv) return;
+
+    if (result.orphanedCount === 0) {
+      statusDiv.innerHTML = `
+        <div style="
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 0.82rem;
+          background: rgba(77, 219, 122, 0.1);
+          color: var(--status-green);
+          border: 1px solid var(--status-green);
+        ">✅ 孤立した履歴データはありません。データは正常です。</div>
+      `;
+      return;
+    }
+
+    // 孤立した漢字をまとめる（重複排除）
+    const charMap = {};
+    result.details.forEach(d => {
+      const key = d.char + '_' + d.targetReading;
+      if (!charMap[key]) {
+        charMap[key] = {
+          char: d.char,
+          targetReading: d.targetReading,
+          reason: d.reason,
+          count: 0
+        };
+      }
+      charMap[key].count++;
+    });
+
+    const detailList = Object.values(charMap).slice(0, 20).map(d => {
+      const reasonLabel = d.reason === 'kanji_missing' ? '漢字が未登録' : '読みが未登録';
+      return `<div style="font-size: 0.78rem; color: var(--text-secondary); padding: 2px 0;">
+        <span style="font-size: 1rem; font-weight: bold;">${d.char}</span>
+        ${d.targetReading ? '「' + d.targetReading + '」' : ''}
+        <span style="color: #ff6b6b; font-size: 0.75rem;">(${reasonLabel} / ${d.count}件)</span>
+      </div>`;
+    }).join('');
+
+    const moreCount = Object.keys(charMap).length > 20 ? `<div style="font-size: 0.75rem; color: #9898b0; margin-top: 4px;">他 ${Object.keys(charMap).length - 20} 件...</div>` : '';
+
+    statusDiv.innerHTML = `
+      <div style="
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--status-red);
+        border: 1px solid var(--status-red);
+        margin-bottom: 10px;
+      ">
+        <div style="font-weight: 600; margin-bottom: 8px;">⚠️ 孤立した履歴が ${result.orphanedCount}件 見つかりました</div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px;">
+          ${result.affectedSessions}セッションに影響があります
+        </div>
+        <div style="max-height: 150px; overflow-y: auto; border-top: 1px solid rgba(255,107,107,0.2); padding-top: 8px; margin-top: 4px;">
+          ${detailList}
+          ${moreCount}
+        </div>
+      </div>
+      <div class="settings-data-buttons" style="gap: 8px;">
+        <button class="btn settings-data-btn" style="background: rgba(255, 107, 107, 0.15); border-color: var(--status-red); color: var(--status-red);" onclick="App.purgeOrphanedHistory()">
+          🗑️ ${result.orphanedCount}件を削除する
+        </button>
+        <button class="btn settings-data-btn" style="font-size: 0.82rem;" onclick="document.getElementById('cleanup-status').innerHTML=''">
+          ✖ キャンセル
+        </button>
+      </div>
+    `;
+  },
+
+  purgeOrphanedHistory() {
+    if (!confirm('孤立した履歴データを削除します。この操作は元に戻せません。\\n\\n削除前にCSVエクスポートでバックアップを取ることをお勧めします。\\n\\n本当に実行しますか？')) {
+      return;
+    }
+
+    const result = Storage.purgeOrphanedHistoryEntries();
+    const statusDiv = document.getElementById('cleanup-status');
+    if (statusDiv) {
+      statusDiv.innerHTML = `
+        <div style="
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 0.82rem;
+          background: rgba(77, 219, 122, 0.1);
+          color: var(--status-green);
+          border: 1px solid var(--status-green);
+        ">✅ ${result.removedCount}件の孤立データを削除しました（${result.removedSessions}セッションに影響）</div>
+      `;
+    }
+
+    // 設定モーダルのデータ件数表示を更新
+    const history = Storage.getHistory();
+    const totalQuestions = history.reduce((sum, s) => sum + (s.questions ? s.questions.length : 0), 0);
+    const dataInfoDiv = document.querySelector('#settings-modal .settings-data-section div[style*="margin-bottom: 12px"]');
+    if (dataInfoDiv) {
+      dataInfoDiv.textContent = '現在のデータ: ' + history.length + 'セッション / ' + totalQuestions + '問';
     }
   }
 };

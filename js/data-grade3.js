@@ -1,4 +1,4 @@
-﻿const KANJI_GRADE3_DATA = {
+const KANJI_GRADE3_DATA = {
   "丁": {
     on: ["チョウ", "テイ"], kun: [], radical: "一",
     etymology: "釘（くぎ）の頭の形を表した象形文字。",
@@ -1094,7 +1094,7 @@
     on: ["メン"], kun: ["おもて", "つら"], radical: "面",
     etymology: "人の顔の枠（囗）と目の形から、「かお、おもて」を表す。",
     hint: "一の下にノと囗、中に目を書く。",
-    examples: [{ reading: "メン", text: "地面（じめん）" }, { reading: "おもて", text: "表と面" }, { reading: "つら", text: "面の皮" }]
+    examples: [{ reading: "メン", text: "地面（じめん）" }, { reading: "おもて", text: "面も振らず" }, { reading: "つら", text: "面の皮" }]
   },
   "役": {
     on: ["ヤク", "エキ"], kun: [], radical: "彳",

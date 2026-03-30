@@ -124,7 +124,8 @@ const TestReading = {
     const readPercent = totalKanji > 0 ? Math.floor((readMastered / totalKanji) * 100) : 0;
     const nextLevelProgress = (readPercent % 10) * 10; // 0 to 90
 
-    const currentReadLevel = Storage.getSetting('gradeStage_R_' + this.currentGrade) || 0;
+    let currentReadLevel = Math.floor(readPercent / 10);
+    if (currentReadLevel > 10) currentReadLevel = 10;
     const stageInfo = App.stages[currentReadLevel] || App.stages[0];
     
     // 次のレベルまでのゲージHTML
