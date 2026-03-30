@@ -228,13 +228,8 @@ const TestMonster = {
 
   handleResult(isCorrect) {
     const q = this.currentQuestion;
-    const actionArea = document.getElementById('test-action-area');
-    const feedbackDiv = document.getElementById('test-feedback');
-    const monsterIcon = document.getElementById('monster-icon');
-    
-    if (actionArea) actionArea.style.display = 'none';
 
-    // 履歴に記録（1回目のみ記録するなどの処理が必要だが、今回は簡易的に全結果を記録）
+    // 履歴に記録
     this.answers.push({
       char: q.char,
       mode: q.mode,
@@ -248,40 +243,13 @@ const TestMonster = {
     });
 
     if (isCorrect) {
-      // 正解処理: ダメージアニメーションとHPダウン
       this.currentHP--;
-      if (monsterIcon) {
-        monsterIcon.classList.remove('monster-damage-anim');
-        void monsterIcon.offsetWidth; // reflow
-        monsterIcon.classList.add('monster-damage-anim');
-      }
-
-      const hpFill = document.getElementById('monster-hp-fill');
-      const hpText = document.getElementById('monster-hp-text');
-      if (hpFill) hpFill.style.width = `${(this.currentHP / this.totalHP) * 100}%`;
-      if (hpText) hpText.textContent = `HP: ${this.currentHP} / ${this.totalHP}`;
-
-      feedbackDiv.innerHTML = `
-        <div class="test-feedback correct" style="border-color: #ff6b6b; background: rgba(255,107,107,0.1);">
-          <span class="test-feedback-icon" style="background: #ff6b6b;">💥</span>
-          <strong style="color: #ff6b6b;">怪獣にダメージを与えた！</strong>
-        </div>
-      `;
     } else {
-      // 不正解処理: キューの後ろに戻す（ループ）
+      // 不正解: キューの後ろに戻す
       this.queue.push(q);
-      
-      feedbackDiv.innerHTML = `
-        <div class="test-feedback incorrect">
-          <span class="test-feedback-icon">🛡️</span>
-          防がれた！この問題は後でもう一度出題されます。
-        </div>
-      `;
     }
 
-    setTimeout(() => {
-      this.nextQuestionState();
-    }, 1500);
+    this.nextQuestionState();
   },
 
   finishTest() {
