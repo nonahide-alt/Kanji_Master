@@ -517,11 +517,7 @@ const Storage = {
           const hasMatchingSentence = kanji.exampleSentences.some(ex => {
             return compareReadings(ex.targetReading, targetReading);
           });
-          // readingsにも含まれるか確認
-          const hasMatchingReading = kanji.readings.some(r => {
-            return compareReadings(r.reading, targetReading);
-          });
-          if (!hasMatchingSentence && !hasMatchingReading) {
+          if (!hasMatchingSentence) {
             orphanedCount++;
             sessionHasOrphan = true;
             details.push({
@@ -562,10 +558,7 @@ const Storage = {
           const hasMatchingSentence = kanji.exampleSentences.some(ex => {
             return compareReadings(ex.targetReading, targetReading);
           });
-          const hasMatchingReading = kanji.readings.some(r => {
-            return compareReadings(r.reading, targetReading);
-          });
-          if (!hasMatchingSentence && !hasMatchingReading) {
+          if (!hasMatchingSentence) {
             removedCount++;
             return false;
           }
