@@ -1033,6 +1033,22 @@ const App = {
       });
     });
 
+    // 怪獣討伐履歴を追加セクションとして含める
+    const monsterHistory = Storage.getMonsterHistory();
+    if (Object.keys(monsterHistory).length > 0) {
+      rows.push('');
+      rows.push('__MONSTER_HISTORY__');
+      rows.push(this._csvEscape(JSON.stringify(monsterHistory)));
+    }
+
+    // アプリ設定を追加セクションとして含める
+    const settingsRaw = localStorage.getItem(Storage.SETTINGS_KEY);
+    if (settingsRaw) {
+      rows.push('');
+      rows.push('__SETTINGS__');
+      rows.push(this._csvEscape(settingsRaw));
+    }
+
     const csvContent = '\uFEFF' + rows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -1100,13 +1116,47 @@ const App = {
   _parseCSV(csvText) {
     // BOM除去
     const text = csvText.replace(/^\uFEFF/, '');
-    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    const allLines = text.split(/\r?\n/);
+    
+    // 追加セクション（__MONSTER_HISTORY__、__SETTINGS__）を分離
+    this._pendingImportExtra = { monsterHistory: null, settings: null };
+    const dataLines = [];
+    let i = 0;
+    while (i < allLines.length) {
+      const trimmed = allLines[i].trim();
+      if (trimmed === '__MONSTER_HISTORY__') {
+        i++;
+        if (i < allLines.length && allLines[i].trim()) {
+          try {
+            const parsed = this._parseCSVLine(allLines[i]);
+            this._pendingImportExtra.monsterHistory = JSON.parse(parsed[0] || allLines[i].trim());
+          } catch(e) { console.warn('怪獣履歴の解析に失敗:', e); }
+        }
+        i++;
+        continue;
+      }
+      if (trimmed === '__SETTINGS__') {
+        i++;
+        if (i < allLines.length && allLines[i].trim()) {
+          try {
+            const parsed = this._parseCSVLine(allLines[i]);
+            this._pendingImportExtra.settings = JSON.parse(parsed[0] || allLines[i].trim());
+          } catch(e) { console.warn('設定データの解析に失敗:', e); }
+        }
+        i++;
+        continue;
+      }
+      dataLines.push(allLines[i]);
+      i++;
+    }
+
+    const lines = dataLines.filter(l => l.trim());
     if (lines.length < 2) return [];
 
     // ヘッダー解析
     const headers = this._parseCSVLine(lines[0]);
     const colIndex = {};
-    headers.forEach((h, i) => colIndex[h.trim()] = i);
+    headers.forEach((h, idx) => colIndex[h.trim()] = idx);
 
     // 必須カラムチェック
     const required = ['session_id', 'date', 'grade', 'mode', 'char', 'correct'];
@@ -1117,8 +1167,8 @@ const App = {
 
     // session_idごとにグループ化
     const sessionMap = {};
-    for (let i = 1; i < lines.length; i++) {
-      const values = this._parseCSVLine(lines[i]);
+    for (let j = 1; j < lines.length; j++) {
+      const values = this._parseCSVLine(lines[j]);
       if (values.length < headers.length) continue;
 
       const get = (key) => (colIndex[key] !== undefined ? values[colIndex[key]] || '' : '');
@@ -1243,12 +1293,33 @@ const App = {
         `✅ ${addedCount}セッションを追加しました（重複: ${this._pendingImport.length - addedCount}件スキップ）`,
         'success'
       );
+      // マージモード: 怪獣履歴もマージ（既存と比較して大きい方を採用）
+      if (this._pendingImportExtra && this._pendingImportExtra.monsterHistory) {
+        const existingMonster = Storage.getMonsterHistory();
+        const imported = this._pendingImportExtra.monsterHistory;
+        Object.keys(imported).forEach(id => {
+          existingMonster[id] = Math.max(existingMonster[id] || 0, imported[id] || 0);
+        });
+        localStorage.setItem(Storage.MONSTER_HISTORY_KEY, JSON.stringify(existingMonster));
+      }
       this._pendingImport = null;
+      this._pendingImportExtra = null;
       return;
+    }
+
+    // 上書きモード: 怪獣討伐履歴・設定も復元
+    if (this._pendingImportExtra) {
+      if (this._pendingImportExtra.monsterHistory) {
+        localStorage.setItem(Storage.MONSTER_HISTORY_KEY, JSON.stringify(this._pendingImportExtra.monsterHistory));
+      }
+      if (this._pendingImportExtra.settings) {
+        localStorage.setItem(Storage.SETTINGS_KEY, JSON.stringify(this._pendingImportExtra.settings));
+      }
     }
 
     this._showDataStatus(`✅ ${this._pendingImport.length}セッションのデータを取り込みました`, 'success');
     this._pendingImport = null;
+    this._pendingImportExtra = null;
   },
 
   cancelImport() {

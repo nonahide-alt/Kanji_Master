@@ -74,7 +74,18 @@ const TestWriting = {
     return selected.map(k => {
       let sentenceObj = null;
       if (k.exampleSentences && k.exampleSentences.length > 0) {
-        sentenceObj = k.exampleSentences[Math.floor(Math.random() * k.exampleSentences.length)];
+        // まだマスターしていない（filled: false）の例文を抽出
+        const status = Storage.getKanjiStatus(k.char, 'writing');
+        const unmasteredSentences = k.exampleSentences.filter(ex => {
+          const sStar = status.sentenceStars.find(s => s.targetReading === ex.targetReading);
+          return sStar && !sStar.filled;
+        });
+
+        if (unmasteredSentences.length > 0) {
+          sentenceObj = unmasteredSentences[Math.floor(Math.random() * unmasteredSentences.length)];
+        } else {
+          sentenceObj = k.exampleSentences[Math.floor(Math.random() * k.exampleSentences.length)];
+        }
       } else {
         const fallbackReading = k.readings[Math.floor(Math.random() * k.readings.length)];
         sentenceObj = {
