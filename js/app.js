@@ -812,26 +812,48 @@ const App = {
 
   startReviewTest() {
     this.isReviewTest = true;
-    // 現在の学年で実際に「弱点」ステータスの漢字を取得
+    // 現在の学年で実際に「弱点」ステータスの漢字を取得（読み・書き両方）
     const kanjiList = getKanjiByGrade(this.currentGrade);
-    let reviewKanji = [];
+    let reviewKanjiReading = [];
+    let reviewKanjiWriting = [];
     
     kanjiList.forEach(k => {
+      // 読みモードの弱点を収集
       const rs = Storage.getKanjiStatus(k.char, 'reading');
       if (rs.color === 'red' && rs.reviewStreaks) {
-        // 弱点の読みごとに問題を作成
         Object.entries(rs.reviewStreaks).forEach(([reading, info]) => {
           if (info.hasError && info.streak < rs.masteryStreak) {
-            // この読みに対応する例文を探す
             let sentenceObj = null;
             if (k.exampleSentences) {
               sentenceObj = k.exampleSentences.find(s => s.targetReading === reading);
             }
-            // 読みのタイプを特定
             const readingObj = k.readings.find(r => r.reading === reading);
             const readingType = readingObj ? readingObj.type : (sentenceObj ? sentenceObj.readingType : 'onyomi');
             
-            reviewKanji.push({
+            reviewKanjiReading.push({
+              char: k.char,
+              reading: reading,
+              readingType: readingType,
+              streak: info.streak,
+              sentenceObj: sentenceObj
+            });
+          }
+        });
+      }
+
+      // 書きモードの弱点を収集
+      const ws = Storage.getKanjiStatus(k.char, 'writing');
+      if (ws.color === 'red' && ws.reviewStreaks) {
+        Object.entries(ws.reviewStreaks).forEach(([reading, info]) => {
+          if (info.hasError && info.streak < ws.masteryStreak) {
+            let sentenceObj = null;
+            if (k.exampleSentences) {
+              sentenceObj = k.exampleSentences.find(s => s.targetReading === reading);
+            }
+            const readingObj = k.readings.find(r => r.reading === reading);
+            const readingType = readingObj ? readingObj.type : (sentenceObj ? sentenceObj.readingType : 'onyomi');
+            
+            reviewKanjiWriting.push({
               char: k.char,
               reading: reading,
               readingType: readingType,
@@ -843,27 +865,81 @@ const App = {
       }
     });
 
-    if (reviewKanji.length === 0) {
+    if (reviewKanjiReading.length === 0 && reviewKanjiWriting.length === 0) {
       alert(`${this.currentGrade}年生で弱点の漢字はありません！\n素晴らしいです！`);
       return;
     }
 
-    // ランダムに5個まで選ぶ
-    const count = Math.min(5, reviewKanji.length);
-    const shuffled = reviewKanji.sort(() => 0.5 - Math.random()).slice(0, count);
+    // 読み・書きそれぞれからランダムに選ぶ（合計5個まで）
+    const shuffledReading = reviewKanjiReading.sort(() => 0.5 - Math.random());
+    const shuffledWriting = reviewKanjiWriting.sort(() => 0.5 - Math.random());
 
-    this.showScreen('test-reading', 'review');
-    
-    // startRetry用のダミー回答オブジェクトを作成（実際のエラー読みを使用）
-    const dummyFailed = shuffled.map(item => {
-      return {
+    if (shuffledReading.length > 0 && shuffledWriting.length > 0) {
+      // 両方ある場合：読みと書きを交互に取って合計5個まで
+      const selected = [];
+      let ri = 0, wi = 0;
+      while (selected.length < 5 && (ri < shuffledReading.length || wi < shuffledWriting.length)) {
+        if (ri < shuffledReading.length) {
+          selected.push({ ...shuffledReading[ri], mode: 'reading' });
+          ri++;
+        }
+        if (selected.length < 5 && wi < shuffledWriting.length) {
+          selected.push({ ...shuffledWriting[wi], mode: 'writing' });
+          wi++;
+        }
+      }
+
+      // 読みと書きに分割
+      const readingItems = selected.filter(s => s.mode === 'reading');
+      const writingItems = selected.filter(s => s.mode === 'writing');
+
+      // 読み問題がある場合は読みテストから開始
+      if (readingItems.length > 0) {
+        this._pendingWritingReview = writingItems;
+        this.showScreen('test-reading', 'review');
+        const dummyFailed = readingItems.map(item => ({
+          char: item.char,
+          readingType: item.readingType,
+          correctAnswer: item.reading
+        }));
+        TestReading.startRetry(dummyFailed, this.currentGrade);
+      } else {
+        this._pendingWritingReview = null;
+        this.showScreen('test-writing', 'review');
+        const dummyFailed = writingItems.map(item => ({
+          char: item.char,
+          readingType: item.readingType,
+          correctAnswer: item.char,
+          targetReading: item.reading
+        }));
+        TestWriting.startRetry(dummyFailed, this.currentGrade);
+      }
+    } else if (shuffledReading.length > 0) {
+      // 読みのみ
+      const count = Math.min(5, shuffledReading.length);
+      const selected = shuffledReading.slice(0, count);
+      this._pendingWritingReview = null;
+      this.showScreen('test-reading', 'review');
+      const dummyFailed = selected.map(item => ({
         char: item.char,
         readingType: item.readingType,
         correctAnswer: item.reading
-      };
-    });
-    
-    TestReading.startRetry(dummyFailed, this.currentGrade);
+      }));
+      TestReading.startRetry(dummyFailed, this.currentGrade);
+    } else {
+      // 書きのみ
+      const count = Math.min(5, shuffledWriting.length);
+      const selected = shuffledWriting.slice(0, count);
+      this._pendingWritingReview = null;
+      this.showScreen('test-writing', 'review');
+      const dummyFailed = selected.map(item => ({
+        char: item.char,
+        readingType: item.readingType,
+        correctAnswer: item.char,
+        targetReading: item.reading
+      }));
+      TestWriting.startRetry(dummyFailed, this.currentGrade);
+    }
   },
 
   startRetentionTest(mode) {
