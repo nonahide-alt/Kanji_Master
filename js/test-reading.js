@@ -77,7 +77,10 @@ const TestReading = {
   },
 
   generateQuestions(grade, count = 5) {
-    const kanjiList = getKanjiByGrade(grade);
+    // 出題可能な漢字のみフィルタ（例文またはreadingsがある漢字）
+    const kanjiList = getKanjiByGrade(grade).filter(k =>
+      (k.exampleSentences && k.exampleSentences.length > 0) || (k.readings && k.readings.length > 0)
+    );
     const lastKeys = this.getLastQuestionKeys();
 
     // マスターしていない漢字（優先）とマスター済みの漢字に分ける
@@ -125,7 +128,7 @@ const TestReading = {
         const chooseFrom = freshPool.length > 0 ? freshPool : pool;
 
         sentenceObj = chooseFrom[Math.floor(Math.random() * chooseFrom.length)];
-      } else {
+      } else if (k.readings && k.readings.length > 0) {
         // フォールバック：直前と異なる読みを優先
         const allReadings = k.readings;
         const freshReadings = allReadings.filter(r => !lastKeys.has(`${k.char}__${r.reading}`));
@@ -138,14 +141,16 @@ const TestReading = {
         };
       }
 
+      if (!sentenceObj) return null;
+
       return {
         char: k.char,
         readingType: sentenceObj.readingType,
         targetReading: sentenceObj.targetReading,
         text: sentenceObj.text,
-        allValidReadings: k.readings.filter(r => r.type === sentenceObj.readingType).map(r => r.reading)
+        allValidReadings: (k.readings || []).filter(r => r.type === sentenceObj.readingType).map(r => r.reading)
       };
-    });
+    }).filter(q => q !== null);
 
     return result;
   },
