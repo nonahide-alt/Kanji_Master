@@ -82,10 +82,13 @@ const ReviewList = {
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
           連続${reviewKanjiReading[0]?.masteryStreak || 3}回正解でマスターに昇格します！
         </p>
-        <div style="display: flex; justify-content: center; gap: 16px;">
-          <button class="btn btn-primary" style="padding: 12px 30px;" onclick="App.startReviewTest()">
-            🔥 復習テストを開始
-          </button>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          ${reviewKanjiReading.length > 0 ? `<button class="btn btn-primary" style="padding: 12px 30px;" onclick="App.startReviewTest('reading')">
+            📖 読みの復習テスト
+          </button>` : ''}
+          ${reviewKanjiWriting.length > 0 ? `<button class="btn btn-primary" style="padding: 12px 30px; background: var(--accent-green); border-color: var(--accent-green);" onclick="App.startReviewTest('writing')">
+            ✏️ 書きの復習テスト
+          </button>` : ''}
         </div>
       </div>
       
