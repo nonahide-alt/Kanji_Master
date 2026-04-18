@@ -19,6 +19,7 @@ const TestReading = {
     this.isAnswerShown = false;
     this.selfReportMode = Storage.getSetting('readingSelfReport') === true;
     this.questions = this.generateQuestions(grade);
+    this.saveLastQuestions();
     this.renderQuestion();
   },
 
@@ -57,9 +58,28 @@ const TestReading = {
     this.renderQuestion();
   },
 
+  // 直前セッションの出題問題を保存
+  saveLastQuestions() {
+    const keys = this.questions.map(q => `${q.char}__${q.targetReading}`);
+    try {
+      sessionStorage.setItem('lastReadingQuestions', JSON.stringify(keys));
+    } catch(e) {}
+  },
+
+  // 直前セッションの出題キーセットを取得
+  getLastQuestionKeys() {
+    try {
+      const raw = sessionStorage.getItem('lastReadingQuestions');
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch(e) {
+      return new Set();
+    }
+  },
+
   generateQuestions(grade, count = 5) {
     const kanjiList = getKanjiByGrade(grade);
-    
+    const lastKeys = this.getLastQuestionKeys();
+
     // マスターしていない漢字（優先）とマスター済みの漢字に分ける
     const unmastered = [];
     const mastered = [];
@@ -80,28 +100,36 @@ const TestReading = {
     } else {
       selected = [...unmastered, ...mastered.slice(0, count - unmastered.length)];
     }
-    
+
     // 抽出された問題をさらにシャッフルして出題順をランダムにする
     this.shuffle(selected);
 
-    return selected.map(k => {
-      // 例文が自動生成されている場合はそれを使う。ない場合はフォールバック
+    // 各漢字から例文を選ぶ際、直前セッションと同じ問題を避ける
+    const result = selected.map(k => {
       let sentenceObj = null;
+
       if (k.exampleSentences && k.exampleSentences.length > 0) {
-        // まだマスターしていない（filled: false）の例文を抽出
         const status = Storage.getKanjiStatus(k.char, 'reading');
+
+        // まだマスターしていない（filled: false）の例文を抽出
         const unmasteredSentences = k.exampleSentences.filter(ex => {
           const sStar = status.sentenceStars.find(s => s.targetReading === ex.targetReading);
           return sStar && !sStar.filled;
         });
 
-        if (unmasteredSentences.length > 0) {
-          sentenceObj = unmasteredSentences[Math.floor(Math.random() * unmasteredSentences.length)];
-        } else {
-          sentenceObj = k.exampleSentences[Math.floor(Math.random() * k.exampleSentences.length)];
-        }
+        const pool = unmasteredSentences.length > 0 ? unmasteredSentences : k.exampleSentences;
+
+        // 直前セッションで出ていない例文を優先
+        const freshPool = pool.filter(ex => !lastKeys.has(`${k.char}__${ex.targetReading}`));
+        const chooseFrom = freshPool.length > 0 ? freshPool : pool;
+
+        sentenceObj = chooseFrom[Math.floor(Math.random() * chooseFrom.length)];
       } else {
-        const fallbackReading = k.readings[Math.floor(Math.random() * k.readings.length)];
+        // フォールバック：直前と異なる読みを優先
+        const allReadings = k.readings;
+        const freshReadings = allReadings.filter(r => !lastKeys.has(`${k.char}__${r.reading}`));
+        const chooseFrom = freshReadings.length > 0 ? freshReadings : allReadings;
+        const fallbackReading = chooseFrom[Math.floor(Math.random() * chooseFrom.length)];
         sentenceObj = {
           readingType: fallbackReading.type,
           targetReading: fallbackReading.reading,
@@ -117,6 +145,8 @@ const TestReading = {
         allValidReadings: k.readings.filter(r => r.type === sentenceObj.readingType).map(r => r.reading)
       };
     });
+
+    return result;
   },
 
   renderQuestion() {
