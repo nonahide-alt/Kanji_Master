@@ -1021,6 +1021,6 @@ const KANJI_GRADE2_DATA = {
     on: ["キ"], kun: [], radical: "氵",
     etymology: "水（さんずい）と气（水蒸気）で、お湯がわいて出る水蒸気。",
     hint: "さんずいに气（きがまえ）を書く。",
-    examples: [{ reading: "キ", text: "汽車（きしゃ）に乗る" }, { reading: "キ", text: "汽笛（きてき）が鳴る" }]
+    examples: [{ reading: "キ", text: "汽笛（きてき）が鳴る" }]
   }
 };
