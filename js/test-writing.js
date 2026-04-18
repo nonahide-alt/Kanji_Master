@@ -45,7 +45,10 @@ const TestWriting = {
   },
 
   generateQuestions(grade, count = 5) {
-    const kanjiList = getKanjiByGrade(grade);
+    // 出題可能な漢字のみフィルタ（例文またはreadingsがある漢字）
+    const kanjiList = getKanjiByGrade(grade).filter(k =>
+      (k.exampleSentences && k.exampleSentences.length > 0) || (k.readings && k.readings.length > 0)
+    );
     
     // マスターしていない漢字（優先）とマスター済みの漢字に分ける
     const unmastered = [];
@@ -77,7 +80,8 @@ const TestWriting = {
         // まだマスターしていない（filled: false）の例文を抽出
         const status = Storage.getKanjiStatus(k.char, 'writing');
         const unmasteredSentences = k.exampleSentences.filter(ex => {
-          const sStar = status.sentenceStars.find(s => s.targetReading === ex.targetReading);
+          const stars = status.sentenceStars || [];
+          const sStar = stars.find(s => s.targetReading === ex.targetReading);
           return sStar && !sStar.filled;
         });
 
@@ -86,7 +90,7 @@ const TestWriting = {
         } else {
           sentenceObj = k.exampleSentences[Math.floor(Math.random() * k.exampleSentences.length)];
         }
-      } else {
+      } else if (k.readings && k.readings.length > 0) {
         const fallbackReading = k.readings[Math.floor(Math.random() * k.readings.length)];
         sentenceObj = {
           readingType: fallbackReading.type,
@@ -95,14 +99,16 @@ const TestWriting = {
         };
       }
 
+      if (!sentenceObj) return null;
+
       return {
         char: k.char,
         readingType: sentenceObj.readingType,
         targetReading: sentenceObj.targetReading,
         text: sentenceObj.text,
-        allReadings: k.readings.map(r => `${r.type === 'onyomi' ? '音' : '訓'}：${r.reading}`).join('　')
+        allReadings: (k.readings || []).map(r => `${r.type === 'onyomi' ? '音' : '訓'}：${r.reading}`).join('　')
       };
-    });
+    }).filter(q => q !== null);
   },
 
   renderQuestion() {

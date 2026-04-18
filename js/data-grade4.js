@@ -1,4 +1,4 @@
-﻿const KANJI_GRADE4_DATA = {
+const KANJI_GRADE4_DATA = {
   "愛": {
     on: ["アイ"], kun: [], radical: "心",
     etymology: "後ろを振り返る人と心で、後をひく「いとしい」気持ちを表す。",
@@ -613,7 +613,7 @@
     on: ["ショウ"], kun: [], radical: "貝",
     etymology: "尚（高い）と貝（お金・宝）で、手柄に与えられる「ごほうび」。",
     hint: "尚の下に貝を書く。",
-    examples: [{ reading: "ショウ", text: "賞状（しょうじょう）をもらう" }, { reading: "ショウ", text: "ノーベル賞（しょう）" }]
+    examples: [{ reading: "ショウ", text: "賞状（しょうじょう）をもらう" }]
   },
   "臣": {
     on: ["シン", "ジン"], kun: [], radical: "臣",
@@ -1216,6 +1216,6 @@
     on: ["ケイ"], kun: ["みち"], radical: "彳",
     etymology: "ぎょうにんべんと巠（たて糸）で、まっすぐな細い「みち」や、さしわたし（直径）。",
     hint: "ぎょうにんべんにスとエのように書く。",
-    examples: [{ reading: "ケイ", text: "円の直径（ちょっけい）" }, { reading: "みち", text: "森の小径（こみち）" }]
+    examples: [{ reading: "ケイ", text: "円の直径（ちょっけい）" }]
   }
 };
