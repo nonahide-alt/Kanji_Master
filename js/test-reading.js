@@ -113,7 +113,8 @@ const TestReading = {
 
         // まだマスターしていない（filled: false）の例文を抽出
         const unmasteredSentences = k.exampleSentences.filter(ex => {
-          const sStar = status.sentenceStars.find(s => s.targetReading === ex.targetReading);
+          const stars = status.sentenceStars || [];
+          const sStar = stars.find(s => s.targetReading === ex.targetReading);
           return sStar && !sStar.filled;
         });
 

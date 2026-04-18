@@ -838,7 +838,7 @@ const KANJI_GRADE2_DATA = {
     etymology: "立と木が新しい芽を出し、斤（おの）で切り開く形。",
     hint: "立と木の右に斤を書く。",
     examples: [
-        { reading: "シン", text: "しんねんがはじまる" },
+        { reading: "シン", text: "新年がはじまる" },
         { reading: "あたら", text: "新しいくつをはく" }
       ]
   },
