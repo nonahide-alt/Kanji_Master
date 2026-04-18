@@ -1015,7 +1015,7 @@ const KANJI_GRADE2_DATA = {
     on: ["ヨウ"], kun: [], radical: "日",
     etymology: "日と翟（羽を高く上げて舞う）で、太陽が輝くこと。七曜（日・月・火・水・木・金・土）に使われる。",
     hint: "日にヨヨ、その下に隹（ふるとり）を書く。",
-    examples: [{ reading: "ヨウ", text: "日曜日（にちようび）" }, { reading: "ヨウ", text: "今日は何曜日（なんようび）ですか" }]
+    examples: [{ reading: "ヨウ", text: "今日は何曜日（なんようび）ですか" }]
   },
   "汽": {
     on: ["キ"], kun: [], radical: "氵",
